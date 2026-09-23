@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HIM YOUTH THAILAND — คลังบทเรียน</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <p class="brand">HIM YOUTH THAILAND</p>
+    <h1>คลังบทเรียนสร้างสาวกรุ่นใหม่</h1>
+    <p class="tagline">รวมบทเรียนสำหรับการสอนและพัฒนาผู้นำรุ่นใหม่ เพิ่มเติมได้เรื่อย ๆ ตามการรับใช้</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="view-list">
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="ค้นหาชื่อบทเรียน...">
+      <nav id="categories" class="categories" aria-label="หมวดบทเรียน"></nav>
+    </div>
+
+    <ul id="lesson-list" class="lesson-list"></ul>
+
+    <p id="empty-state" class="empty-state" hidden>ยังไม่มีบทเรียนในหมวดนี้ ลองเลือกหมวดอื่น หรือล้างคำค้นหา</p>
+  </section>
+
+  <section id="view-reader" hidden>
+    <a href="#" id="back-link" class="back-link">&larr; กลับไปที่รายการบทเรียนทั้งหมด</a>
+    <article id="reader-content" class="reader-content"></article>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>HIM Youth Thailand · บทเรียนนี้จัดทำเพื่อการรับใช้และการเติบโตของสาวกรุ่นใหม่</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
