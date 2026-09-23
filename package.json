@@ -1,0 +1,22 @@
+{
+  "name": "him-youth-lessons",
+  "version": "2.0.0",
+  "description": "HIM Youth Thailand — Lesson Management System with Admin Panel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "lessons",
+    "discipleship",
+    "youth",
+    "thailand"
+  ],
+  "author": "HIM Youth Thailand",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  }
+}

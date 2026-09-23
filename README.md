@@ -1,75 +1,120 @@
-# HIM Youth Thailand — Lesson Library
+# HIM Youth Thailand — Lesson Library v2.0
 
-A plain static website for storing and browsing discipleship lessons. No server,
-no database — just HTML/CSS/JS and Markdown files. Works from any static host
-(GitHub Pages, Netlify, Vercel, or even a shared folder opened locally).
+A **lesson management system** with:
+- 📱 **Admin Panel** — Create, Edit, Delete lessons easily
+- 🌐 **Website** — Browse and read lessons (index.html)
+- 💾 **Auto-sync** — Changes appear instantly (no Export/Import needed)
+- 🔧 **Backend** — Node.js Express server manages files
+
+**What's new:**
+- ✅ No more manual JSON editing
+- ✅ No more manual file copying
+- ✅ Real-time updates (Admin → Website instantly)
+- ✅ Simple API for lesson management
 
 ## How it works
 
-- `lessons/manifest.json` is the index: one entry per lesson (title, category,
-  date, short excerpt, and the filename of its content).
-- Each lesson's full content lives in its own `.md` (Markdown) file inside
-  `lessons/`.
-- `index.html` / `style.css` / `app.js` load the manifest, show the list with
-  search + category filters, and render a lesson's Markdown when clicked.
+1. **Admin Panel** (`admin.html`) — Create/Edit/Delete lessons via a user-friendly form
+2. **Backend Server** (`server.js`) — Saves lessons to disk immediately
+   - Updates `lessons/manifest.json`
+   - Writes `.md` files to `lessons/` folder
+3. **Website** (`index.html`) — Reads from `lessons/manifest.json` and displays lessons
 
-There's no size limit that matters in practice — this scales to hundreds of
-lesson files without any change to the site itself.
+Everything syncs automatically — no Export/Import step needed!
 
-## Adding a new lesson
+## Getting Started (5 minutes)
 
-1. Write the lesson in a new file, e.g. `lessons/0004-my-new-lesson.md`.
-   Plain Markdown: `#`/`##` for headings, `-` for bullet lists, `>` for a
-   quote, blank lines between paragraphs.
-2. Add one entry to `lessons/manifest.json`:
-   ```json
-   {
-     "id": "0004-my-new-lesson",
-     "title": "ชื่อบทเรียน",
-     "category": "หมวดที่ต้องการ",
-     "date": "2026-10-01",
-     "excerpt": "สรุปสั้น ๆ หนึ่งประโยค",
-     "file": "0004-my-new-lesson.md"
-   }
-   ```
-   `id` should be unique and URL-safe (letters, numbers, hyphens) — it becomes
-   the link to that lesson. `category` can be a new one; it will appear
-   automatically in the filter bar.
-3. Save and redeploy (see below). That's the whole workflow — no build step.
+### 1. Install Node.js
+- Download: https://nodejs.org/ (LTS version)
+
+### 2. Install Dependencies
+```bash
+cd him-youth-lessons-updated
+npm install
+```
+
+### 3. Run the Server
+```bash
+npm start
+```
+
+You'll see:
+```
+🚀 HIM Youth Lessons Server running on http://localhost:3000
+📄 Admin Panel: http://localhost:3000/admin.html
+📚 Lessons: http://localhost:3000/index.html
+```
+
+### 4. Open Admin Panel
+Visit: **http://localhost:3000/admin.html**
+
+### 5. Create Your First Lesson
+1. Fill in the form (ID, Title, Category, Date, Excerpt, Content)
+2. Click **💾 บันทึกบทเรียน**
+3. Visit **http://localhost:3000** to see it live!
+
+**That's it!** No Export/Import steps needed. Changes appear instantly.
+
+## Adding a new lesson (Via Admin Panel)
+
+1. Go to **http://localhost:3000/admin.html**
+2. Fill in the form:
+   - **ID**: e.g., `0004-my-new-lesson` (URL-safe)
+   - **Title**: `ชื่อบทเรียน`
+   - **Category**: e.g., `หมวดที่ต้องการ` (auto-added to filter)
+   - **Date**: `2026-10-01`
+   - **Excerpt**: Brief summary (shown in list)
+   - **Content**: Markdown format
+3. Click **💾 บันทึกบทเรียน**
+4. Done! The lesson appears on the website instantly.
 
 ## Editing or removing a lesson
 
-Edit the `.md` file directly, or remove both the `.md` file and its manifest
-entry to take a lesson down.
+### Edit:
+1. Click **✏️ แก้ไข** on the lesson
+2. Modify the form
+3. Click **💾 อัปเดตบทเรียน**
 
-## Trying it locally
+### Delete:
+1. Click **🗑️ ลบ** on the lesson
+2. Confirm deletion
 
-Opening `index.html` directly by double-clicking it won't work in every
-browser (fetching local JSON/Markdown files is blocked by some browsers'
-security rules). Instead, run a tiny local server from this folder:
+## For Detailed Setup Instructions
 
+- **New to Node.js?** → See [SETUP.md](SETUP.md)
+- **Quick start guide?** → See [QUICK_START.md](QUICK_START.md)
+- **Admin Panel tutorial?** → See [ADMIN_GUIDE.md](ADMIN_GUIDE.md)
+
+## Deploying to Production
+
+Since this is a **Node.js app** (not static HTML), you'll need a host that 
+supports Node.js:
+
+### Heroku (Easiest)
 ```bash
-python3 -m http.server 8000
+heroku create your-app-name
+git push heroku main
+heroku open
 ```
+→ Your app will be live at `your-app-name.herokuapp.com`
 
-then open `http://localhost:8000` in a browser.
+### Railway (Recommended)
+- Visit https://railway.app
+- Connect your GitHub repo
+- Deploy with one click
+- Free tier available
 
-## Deploying for free
+### Render / Vercel / AWS / DigitalOcean
+- All support Node.js apps
+- Follow their deployment guides
 
-Any of these work well for a low-traffic site like this one:
-
-- **GitHub Pages** — push this folder to a GitHub repo, then enable Pages
-  in the repo's Settings (Pages → Deploy from branch). Free, and updates
-  automatically whenever you push a new lesson.
-- **Netlify / Vercel** — drag and drop this folder into their web dashboard
-  ("Deploy manually" / drag-and-drop deploy). Free tier is enough.
-- **Any shared web hosting** — upload the whole folder via FTP; it's plain
-  static files, so nothing else is required.
+**Do NOT use GitHub Pages or static hosts** — they don't run Node.js servers.
 
 ## Notes
 
-- The three lessons included (`0001`–`0003`) are placeholder content —
-  replace or delete them.
-- Fonts (Noto Serif Thai, Sarabun) and the Markdown renderer (marked.js)
-  load from public CDNs, so the site needs an internet connection to look
-  and render correctly.
+- The three sample lessons (`0001`–`0003`) are placeholder content — 
+  feel free to edit or delete them via the Admin Panel.
+- Fonts (Noto Serif Thai, Sarabun) and Markdown renderer (marked.js) 
+  load from public CDNs, so internet is needed for proper rendering.
+- All data is stored in `lessons/` folder on disk — safe and portable.
+- For detailed guides, see **SETUP.md**, **QUICK_START.md**, and **ADMIN_GUIDE.md**.
