@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 HIM Youth - Lesson Editor</title>
+  <link rel="stylesheet" href="admin-style.css">
+  <style>
+    .editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .user-info {
+      background: #f0f4ff;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .user-info strong {
+      color: #333;
+    }
+
+    .logout-btn {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #ff5252;
+    }
+
+    .restricted-message {
+      background: #fee;
+      color: #c33;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #c33;
+      margin-bottom: 20px;
+    }
+
+    .my-lessons {
+      margin-top: 40px;
+    }
+
+    .lessons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .lesson-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.2s;
+    }
+
+    .lesson-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .lesson-card h3 {
+      margin: 0 0 8px 0;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .lesson-card .category {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .lesson-card .date {
+      color: #999;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .lesson-card .excerpt {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .lesson-card .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .lesson-card button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .edit-btn {
+      background: #667eea;
+      color: white;
+    }
+
+    .edit-btn:hover:not(:disabled) {
+      background: #5568d3;
+    }
+
+    .delete-btn {
+      background: #fee;
+      color: #c33;
+    }
+
+    .delete-btn:hover:not(:disabled) {
+      background: #fdd;
+    }
+
+    .edit-btn:disabled,
+    .delete-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .lesson-card .creator {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="editor-header">
+      <div>
+        <h1>📝 My Lesson Editor</h1>
+        <p style="color: #666; margin-top: 5px;">Create and manage your lessons</p>
+      </div>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="user-info">
+          👤 <strong id="username">User</strong> (Writer)
+        </div>
+        <a href="/index.html" class="logout-btn" style="background: #667eea; text-decoration: none; padding: 8px 16px; border-radius: 6px; color: white; font-weight: 600; border: none; cursor: pointer; display: inline-block;">🏠 Home</a>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+      </div>
+    </div>
+
+    <!-- Restricted Message -->
+    <div class="restricted-message">
+      ⚠️ <strong>Writer Account:</strong> You can create new lessons and edit/delete only your own. 
+      To edit other lessons or manage users, please contact an Administrator.
+    </div>
+
+    <!-- Create New Lesson Form -->
+    <div class="section">
+      <h2>✍️ Create New Lesson</h2>
+      <form id="lesson-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lesson-title">Lesson Title *</label>
+            <input type="text" id="lesson-title" placeholder="e.g., Foundation of a Disciple" required>
+          </div>
+          <div class="form-group">
+            <label for="lesson-category">Category *</label>
+            <input type="text" id="lesson-category" placeholder="e.g., Discipleship" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lesson-date">Date *</label>
+            <input type="date" id="lesson-date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lesson-excerpt">Excerpt/Summary *</label>
+          <textarea id="lesson-excerpt" placeholder="Brief summary of the lesson..." rows="2" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="lesson-content">Lesson Content (Markdown) *</label>
+          <textarea id="lesson-content" placeholder="Write your lesson content here... (supports Markdown)" rows="12" required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" class="btn btn-primary">📤 Publish Lesson</button>
+          <button type="reset" class="btn btn-secondary">🔄 Clear</button>
+        </div>
+        <div id="form-message"></div>
+      </form>
+    </div>
+
+    <!-- My Lessons -->
+    <div class="my-lessons">
+      <h2>📚 My Lessons</h2>
+      <div id="lessons-list" class="lessons-grid">
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <p>No lessons yet. Create your first lesson above!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    let allLessons = [];
+    let currentUser = null;
+
+    // Initialize
+    init();
+
+    async function init() {
+      // Check authentication
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+
+      if (!token || !user) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      currentUser = JSON.parse(user);
+      document.getElementById('username').textContent = currentUser.username;
+
+      // Set today's date
+      document.getElementById('lesson-date').valueAsDate = new Date();
+
+      // Load lessons
+      await loadLessons();
+
+      // Setup event listeners
+      document.getElementById('lesson-form').addEventListener('submit', handleSubmit);
+    }
+
+    async function loadLessons() {
+      try {
+        const response = await fetch(`${API_URL}/lessons`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load lessons');
+        }
+
+        allLessons = await response.json();
+        // Filter to show only user's lessons (writers can only see their own)
+        const myLessons = allLessons.filter(l => l.userId === currentUser.id);
+        renderLessons(myLessons);
+      } catch (err) {
+        console.error('Error loading lessons:', err);
+        document.getElementById('lessons-list').innerHTML = 
+          `<div class="empty-state"><div class="empty-state-icon">❌</div><p>Error loading lessons</p></div>`;
+      }
+    }
+
+    function renderLessons(lessons) {
+      const container = document.getElementById('lessons-list');
+
+      if (lessons.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No lessons yet. Create your first lesson above!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = lessons
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .map(lesson => `
+          <div class="lesson-card">
+            <h3>${escapeHtml(lesson.title)}</h3>
+            <span class="category">${escapeHtml(lesson.category)}</span>
+            <div class="date">📅 ${lesson.date}</div>
+            <p class="excerpt">${escapeHtml(lesson.excerpt)}</p>
+            <div class="actions">
+              <button class="edit-btn" onclick="editLesson('${lesson.id}')">✏️ Edit</button>
+              <button class="delete-btn" onclick="deleteLesson('${lesson.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `).join('');
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('lesson-title').value.trim();
+      const category = document.getElementById('lesson-category').value.trim();
+      const date = document.getElementById('lesson-date').value;
+      const excerpt = document.getElementById('lesson-excerpt').value.trim();
+      const content = document.getElementById('lesson-content').value.trim();
+
+      if (!title || !category || !date || !excerpt || !content) {
+        showMessage('Please fill in all fields', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/lessons`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ title, category, date, excerpt, content })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to save lesson');
+        }
+
+        showMessage('✅ Lesson published successfully!', 'success');
+        document.getElementById('lesson-form').reset();
+        document.getElementById('lesson-date').valueAsDate = new Date();
+        await loadLessons();
+      } catch (err) {
+        showMessage(`❌ Error: ${err.message}`, 'error');
+      }
+    }
+
+    function editLesson(lessonId) {
+      alert('✏️ Full editing feature coming soon!\n\nFor now, you can:\n1. Delete this lesson\n2. Create a new updated version');
+    }
+
+    async function deleteLesson(lessonId) {
+      if (!confirm('Are you sure you want to delete this lesson? This cannot be undone.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/lessons/${lessonId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to delete lesson');
+        }
+
+        showMessage('🗑️ Lesson deleted successfully', 'success');
+        await loadLessons();
+      } catch (err) {
+        showMessage(`❌ Error: ${err.message}`, 'error');
+      }
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/index.html';
+      }
+    }
+
+    function showMessage(message, type) {
+      const container = document.getElementById('form-message');
+      container.textContent = message;
+      container.style.color = type === 'error' ? '#c33' : '#3c3';
+      container.style.marginTop = '10px';
+      container.style.padding = '10px';
+      container.style.borderRadius = '6px';
+      container.style.background = type === 'error' ? '#fee' : '#efe';
+      container.style.display = 'block';
+
+      setTimeout(() => {
+        container.style.display = 'none';
+      }, 5000);
+    }
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+  </script>
+</body>
+</html>

@@ -3,21 +3,206 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HIM YOUTH — จัดการบทเรียน</title>
+<title>HIM YOUTH — Admin Panel</title>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="admin-style.css">
+<style>
+  .admin-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .admin-tabs button {
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+  }
+
+  .admin-tabs button.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+  }
+
+  .admin-tabs button:hover {
+    color: #333;
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .user-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .user-info {
+    flex: 1;
+  }
+
+  .user-info h4 {
+    margin: 0 0 4px 0;
+    color: #333;
+  }
+
+  .user-info p {
+    margin: 4px 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .user-role {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .user-role.admin {
+    background: #ffe0e0;
+    color: #c33;
+  }
+
+  .user-role.writer {
+    background: #e0e8ff;
+    color: #0033cc;
+  }
+
+  .user-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .user-card.form-container {
+    background: #f9f9f9;
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95rem;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .user-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .logout-btn {
+    background: #c33;
+    color: white;
+  }
+
+  .logout-btn:hover {
+    background: #a22;
+  }
+
+  .auth-message {
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+  }
+
+  .auth-message.info {
+    background: #e3f2fd;
+    color: #1565c0;
+    border-left: 4px solid #1565c0;
+  }
+
+  .users-list {
+    margin-top: 20px;
+  }
+
+  .users-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .users-toolbar input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+  }
+
+  .lesson-card-creator {
+    font-size: 0.85rem;
+    color: #888;
+    margin: 8px 0 0 0;
+    font-style: italic;
+  }
+</style>
 </head>
 <body>
 
 <header class="admin-header">
   <div class="wrap">
-    <h1>HIM YOUTH THAILAND — จัดการบทเรียน</h1>
+    <h1>🔐 HIM YOUTH THAILAND — Admin Panel</h1>
     <div class="header-actions">
-      <button id="import-btn" class="btn btn-secondary">📥 นำเข้า JSON</button>
-      <button id="export-btn" class="btn btn-secondary">📤 ส่งออก JSON</button>
+      <span id="user-info" style="color: #666; font-size: 0.95rem;"></span>
+      <button id="logout-btn" class="btn logout-btn">🚪 Logout</button>
       <a href="index.html" class="btn btn-secondary">👁️ ดูเว็บไซต์</a>
     </div>
   </div>
@@ -25,69 +210,118 @@
 
 <main class="wrap admin-main">
 
-  <section class="panel">
-    <div style="background: #e8f5e9; padding: 12px; border-radius: 4px; margin-bottom: 20px; color: #2d7a3e; font-size: 0.95rem;">
-      ✅ <strong>ทำงานแบบ Real-time</strong> — บทเรียนที่บันทึกจะแสดงบน index.html ทันที (ไม่ต้อง Export หรือ Reload)
-    </div>
-    <h2>สร้างบทเรียนใหม่</h2>
-    <form id="lesson-form" class="lesson-form">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="lesson-title">ชื่อบทเรียน:</label>
-          <input type="text" id="lesson-title" placeholder="เช่น ผู้นำที่รับใช้" required>
+  <div class="admin-tabs">
+    <button class="tab-btn active" data-tab="lessons">📚 จัดการบทเรียน</button>
+    <button class="tab-btn" data-tab="users">👥 จัดการผู้ใช้</button>
+  </div>
+
+  <!-- TAB 1: LESSONS MANAGEMENT -->
+  <div id="lessons-tab" class="tab-content active">
+    <section class="panel">
+      <div style="background: #e8f5e9; padding: 12px; border-radius: 4px; margin-bottom: 20px; color: #2d7a3e; font-size: 0.95rem;">
+        ✅ <strong>ทำงานแบบ Real-time</strong> — บทเรียนที่บันทึกจะแสดงบน index.html ทันที (ไม่ต้อง Export หรือ Reload)
+      </div>
+      <h2>สร้างบทเรียนใหม่</h2>
+      <form id="lesson-form" class="lesson-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lesson-title">ชื่อบทเรียน:</label>
+            <input type="text" id="lesson-title" placeholder="เช่น ผู้นำที่รับใช้" required>
+          </div>
+
+          <div class="form-group">
+            <label for="lesson-category">หมวดหมู่:</label>
+            <input type="text" id="lesson-category" placeholder="เช่น การเป็นผู้นำ" list="categories" required>
+            <datalist id="categories"></datalist>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lesson-date">วันที่:</label>
+            <input type="date" id="lesson-date" required>
+          </div>
         </div>
 
         <div class="form-group">
-          <label for="lesson-category">หมวดหมู่:</label>
-          <input type="text" id="lesson-category" placeholder="เช่น การเป็นผู้นำ" list="categories" required>
-          <datalist id="categories"></datalist>
+          <label for="lesson-excerpt">สรุปสั้น ๆ:</label>
+          <input type="text" id="lesson-excerpt" placeholder="บรรยายสั้น ๆ เกี่ยวกับบทเรียน" required>
         </div>
-      </div>
 
-      <div class="form-row">
         <div class="form-group">
-          <label for="lesson-date">วันที่:</label>
-          <input type="date" id="lesson-date" required>
+          <label for="lesson-content">เนื้อหาบทเรียน (Markdown):</label>
+          <textarea id="lesson-content" placeholder="# ชื่อหัวข้อ&#10;&#10;เนื้อหาของบทเรียน...&#10;&#10;## หัวข้อย่อย&#10;&#10;- จุดสำคัญที่ 1&#10;- จุดสำคัญที่ 2" required></textarea>
         </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 บันทึกบทเรียน</button>
+          <button type="reset" class="btn btn-secondary">🔄 ล้างฟอร์ม</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>บทเรียนทั้งหมด</h2>
+      <div class="lessons-toolbar">
+        <input type="search" id="search-lessons" placeholder="ค้นหาบทเรียน..." class="search-input">
+      </div>
+      <div id="lessons-list" class="lessons-list"></div>
+      <p id="empty-lessons" class="empty-state" hidden>ยังไม่มีบทเรียน ให้สร้างบทเรียนใหม่ข้างบนก่อน</p>
+    </section>
+  </div>
+
+  <!-- TAB 2: USER MANAGEMENT -->
+  <div id="users-tab" class="tab-content">
+    <section class="panel">
+      <div class="auth-message info">
+        ℹ️ ใช้แบบฟอร์มนี้เพื่อสร้าง Writer หรือแก้ไขรายละเอียดผู้ใช้
       </div>
 
-      <div class="form-group">
-        <label for="lesson-excerpt">สรุปสั้น ๆ:</label>
-        <input type="text" id="lesson-excerpt" placeholder="บรรยายสั้น ๆ เกี่ยวกับบทเรียน" required>
-      </div>
+      <h2>สร้างผู้ใช้ใหม่</h2>
+      <div class="user-card form-container">
+        <form id="user-form">
+          <div class="user-form-row">
+            <div class="form-group">
+              <label for="new-username">Username:</label>
+              <input type="text" id="new-username" placeholder="เช่น john_writer" required>
+            </div>
+            <div class="form-group">
+              <label for="new-email">Email:</label>
+              <input type="email" id="new-email" placeholder="john@example.com" required>
+            </div>
+          </div>
 
-      <div class="form-group">
-        <label for="lesson-content">เนื้อหาบทเรียน (Markdown):</label>
-        <textarea id="lesson-content" placeholder="# ชื่อหัวข้อ&#10;&#10;เนื้อหาของบทเรียน...&#10;&#10;## หัวข้อย่อย&#10;&#10;- จุดสำคัญที่ 1&#10;- จุดสำคัญที่ 2" required></textarea>
-      </div>
+          <div class="form-group">
+            <label for="new-password">รหัสผ่าน:</label>
+            <input type="password" id="new-password" placeholder="อย่างน้อย 6 ตัวอักษร" required>
+          </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">💾 บันทึกบทเรียน</button>
-        <button type="reset" class="btn btn-secondary">🔄 ล้างฟอร์ม</button>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">➕ สร้าง Writer Account</button>
+            <button type="reset" class="btn btn-secondary">🔄 ล้างฟอร์ม</button>
+          </div>
+        </form>
       </div>
-    </form>
-  </section>
+    </section>
 
-  <section class="panel">
-    <h2>บทเรียนทั้งหมด</h2>
-    <div class="lessons-toolbar">
-      <input type="search" id="search-lessons" placeholder="ค้นหาบทเรียน..." class="search-input">
-    </div>
-    <div id="lessons-list" class="lessons-list"></div>
-    <p id="empty-lessons" class="empty-state" hidden>ยังไม่มีบทเรียน ให้สร้างบทเรียนใหม่ข้างบนก่อน</p>
-  </section>
+    <section class="panel">
+      <h2>รายชื่อผู้ใช้ทั้งหมด</h2>
+      <div class="users-toolbar">
+        <input type="search" id="search-users" placeholder="ค้นหาผู้ใช้..." class="search-input">
+      </div>
+      <div id="users-list" class="users-list"></div>
+      <p id="empty-users" class="empty-state" hidden>ยังไม่มีผู้ใช้</p>
+    </section>
+  </div>
 
 </main>
 
 <footer class="admin-footer">
   <div class="wrap">
-    <p>Admin Panel — จัดการบทเรียนได้ง่าย ๆ แบบ Markdown</p>
+    <p>Admin Panel — จัดการบทเรียนและผู้ใช้</p>
   </div>
 </footer>
 
-<!-- Hidden file input for import -->
-<input type="file" id="import-file" accept=".json" style="display: none;">
-
-<script src="admin.js"></script>
+<script src="admin-new.js"></script>
 </body>
 </html>
