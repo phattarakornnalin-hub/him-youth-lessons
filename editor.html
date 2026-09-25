@@ -714,10 +714,14 @@
     </header> <!-- Restricted Message -->
     <div class="restricted-message"> ⚠️ <strong>Writer Account (สิทธิ์ผู้เขียน):</strong> คุณสามารถสร้างบทเรียนใหม่
       และแก้ไขหรือลบเฉพาะบทเรียนของคุณเองได้ หากต้องการจัดการบทเรียนอื่นหรือจัดการผู้ใช้งาน กรุณาติดต่อผู้ดูแลระบบ
-      (Administrator) </div> <!-- Create New Lesson Form -->
-    <div class="section">
-      <h2 class="section-title">✍️ เขียนบทเรียนใหม่ (Create New Lesson)</h2>
+      (Administrator) </div> <!-- Create / Edit Lesson Form -->
+    <div class="section" id="form-section">
+      <h2 class="section-title" id="form-section-title">✍️ เขียนบทเรียนใหม่ (Create New Lesson)</h2>
+      <div id="edit-mode-banner" hidden style="background: #fff3cd; border: 2px solid var(--retro-mustard); border-left: 6px solid var(--retro-mustard); padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 0.92rem; box-shadow: 2px 2px 0px var(--retro-border);">
+        ✏️ <strong>โหมดแก้ไข:</strong> กำลังแก้ไขบทเรียน <span id="edit-lesson-label"></span> — อัปโหลดไฟล์ใหม่เฉพาะเมื่อต้องการเปลี่ยนเนื้อหา
+      </div>
       <form id="lesson-form">
+        <input type="hidden" id="editing-lesson-id" value="">
         <div class="form-row">
           <div class="form-group"> <label for="lesson-title">ชื่อบทเรียน (Lesson Title) *</label> <input type="text"
               id="lesson-title" placeholder="เช่น การสร้างวินัยฝ่ายวิญญาณ: การเฝ้าเดี่ยว" required> </div>
@@ -732,16 +736,20 @@
           <textarea id="lesson-excerpt" placeholder="เขียนสรุปสั้น ๆ ของบทเรียนเพื่อแสดงในการ์ดหน้าแรก..." rows="2"
             required></textarea> </div>
         <div class="form-group">
-          <label for="lesson-content-file">📄 อัปโหลดไฟล์บทเรียน (Upload Lesson File — PDF แนะนำ) *</label>
-          <input type="file" id="lesson-content-file" accept=".pdf,application/pdf,.md,.txt,.markdown,text/plain,text/markdown" required
+          <label for="lesson-content-file" id="file-label">📄 อัปโหลดไฟล์บทเรียน (Upload Lesson File — PDF แนะนำ) *</label>
+          <input type="file" id="lesson-content-file" accept=".pdf,application/pdf,.md,.txt,.markdown,text/plain,text/markdown"
             style="padding: 10px; border: 2px solid var(--retro-border); border-radius: 6px; background: #fff; width: 100%; cursor: pointer;">
-          <p style="font-size: 0.85rem; color: var(--retro-ink-muted); margin-top: 6px;">
+          <p id="file-hint" style="font-size: 0.85rem; color: var(--retro-ink-muted); margin-top: 6px;">
             อัปโหลดไฟล์ <strong>PDF</strong> (แนะนำ) หรือ Markdown/Text ที่มีเนื้อหาบทเรียน
           </p>
+          <p id="current-file-info" style="font-size: 0.88rem; color: var(--retro-teal); margin-top: 4px; font-weight: 600;" hidden></p>
           <p id="selected-file-name" style="font-size: 0.9rem; color: var(--retro-avocado-green); margin-top: 4px; font-weight: 600;" hidden></p>
         </div>
-        <div class="form-actions"> <button type="submit" class="btn btn-primary">📤 เผยแพร่บทเรียน (Publish
-            Lesson)</button> <button type="reset" class="btn btn-secondary">🔄 ล้างข้อมูล (Clear)</button> </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submit-btn">📤 เผยแพร่บทเรียน (Publish Lesson)</button>
+          <button type="button" class="btn btn-secondary" id="cancel-edit-btn" hidden onclick="cancelEdit()">❌ ยกเลิกการแก้ไข (Cancel)</button>
+          <button type="reset" class="btn btn-secondary" id="clear-btn" onclick="setTimeout(resetToCreateMode, 0)">🔄 ล้างข้อมูล (Clear)</button>
+        </div>
         <div id="form-message"></div>
       </form>
     </div> <!-- My Lessons -->
@@ -766,21 +774,20 @@
     const API_URL = 'http://localhost:3000/api';
     let allLessons = [];
     let currentUser = null;
+    let editingLessonId = null;
 
-    // Initialize
     init();
 
     async function init() {
-      // Check authentication
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
 
       if (!token || !user) {
-        // Fallback for visual preview in demo environment if no token is found
         currentUser = { id: 'demo-user', username: 'DemoWriter', role: 'writer' };
         document.getElementById('username').textContent = currentUser.username;
         document.getElementById('lesson-date').valueAsDate = new Date();
         renderDemoLessons();
+        setupFormListeners();
         return;
       }
 
@@ -791,13 +798,12 @@
         currentUser = { id: 'writer', username: 'Writer', role: 'writer' };
       }
 
-      // Set today's date
       document.getElementById('lesson-date').valueAsDate = new Date();
-
-      // Load lessons
       await loadLessons();
+      setupFormListeners();
+    }
 
-      // Setup event listeners
+    function setupFormListeners() {
       document.getElementById('lesson-form').addEventListener('submit', handleSubmit);
 
       const fileInput = document.getElementById('lesson-content-file');
@@ -823,29 +829,22 @@
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to load lessons');
-        }
+        if (!response.ok) throw new Error('Failed to load lessons');
 
         allLessons = await response.json();
 
-        // 🔍 กรองบทเรียนที่เป็นของผู้ใช้คนนี้อย่างยืดหยุ่น (ตรวจสอบทั้ง userId และ createdBy/username)
         const myLessons = allLessons.filter(l => {
           if (!currentUser) return false;
-          
-          const matchUserId = l.userId && String(l.userId) === String(currentUser.id);
+          const matchUserId = l.userId && String(l.userId) === String(currentUser.id || currentUser.userId);
           const matchUsername = l.createdBy && l.createdBy.toLowerCase() === (currentUser.username || '').toLowerCase();
           const matchAuthor = l.author && l.author.toLowerCase() === (currentUser.username || '').toLowerCase();
-
           return matchUserId || matchUsername || matchAuthor;
         });
 
         renderLessons(myLessons);
       } catch (err) {
         console.error('Error loading lessons:', err);
-        // หากดึงข้อมูลล้มเหลว สามารถเปิด renderDemoLessons() ชั่วคราว หรือแจ้งเตือนได้
-        const container = document.getElementById('lessons-list');
-        container.innerHTML = `
+        document.getElementById('lessons-list').innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">⚠️</div>
             <p>ไม่สามารถโหลดบทเรียนของคุณได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่อเซิร์ฟเวอร์</p>
@@ -856,9 +855,10 @@
 
     function renderDemoLessons() {
       const demoList = [
-        { id: 'demo-1', title: 'การสร้างวินัยฝ่ายวิญญาณ: การเฝ้าเดี่ยวและการอธิษฐานประจำวัน', category: 'ชีวิตฝ่ายวิญญาณ', date: '2025-05-14', excerpt: 'เรียนรู้เคล็ดลับการจัดเวลาที่มีประสิทธิภาพ สร้างความสัมพันธ์ที่แนบแน่นกับพระเจ้าผ่านการอ่านพระวจนะ' },
-        { id: 'demo-2', title: 'หลักการเป็นผู้นำกลุ่มเซลล์รุ่นใหม่ (Cell Group Leadership)', category: 'การเป็นผู้นำ', date: '2025-05-10', excerpt: 'แนวทางการนำกลุ่มแคร์ การเปิดใจรับฟังอย่างเข้าอกเข้าใจ และการสร้างบรรยากาศที่ปลอดภัยให้สมาชิกเติบโต' }
+        { id: 'demo-1', title: 'การสร้างวินัยฝ่ายวิญญาณ: การเฝ้าเดี่ยวและการอธิษฐานประจำวัน', category: 'ชีวิตฝ่ายวิญญาณ', date: '2025-05-14', excerpt: 'เรียนรู้เคล็ดลับการจัดเวลาที่มีประสิทธิภาพ สร้างความสัมพันธ์ที่แนบแน่นกับพระเจ้าผ่านการอ่านพระวจนะ', file: 'demo-1.pdf', type: 'pdf' },
+        { id: 'demo-2', title: 'หลักการเป็นผู้นำกลุ่มเซลล์รุ่นใหม่ (Cell Group Leadership)', category: 'การเป็นผู้นำ', date: '2025-05-10', excerpt: 'แนวทางการนำกลุ่มแคร์ การเปิดใจรับฟังอย่างเข้าอกเข้าใจ และการสร้างบรรยากาศที่ปลอดภัยให้สมาชิกเติบโต', file: 'demo-2.md', type: 'markdown' }
       ];
+      allLessons = demoList;
       renderLessons(demoList);
     }
 
@@ -877,20 +877,129 @@
 
       container.innerHTML = lessons
         .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
-        .map(lesson => `
-          <div class="lesson-card">
+        .map(lesson => {
+          const isEditing = editingLessonId && String(editingLessonId) === String(lesson.id);
+          return `
+          <div class="lesson-card" style="${isEditing ? 'outline: 3px solid var(--retro-mustard); outline-offset: 2px;' : ''}">
             <div>
               <span class="category">${escapeHtml(lesson.category)}</span>
               <h3>${escapeHtml(lesson.title)}</h3>
-              <div class="date">📅 ${lesson.date}</div>
+              <div class="date">📅 ${lesson.date}${lesson.updatedAt ? ' · ✏️ อัปเดตแล้ว' : ''}</div>
               <p class="excerpt">${escapeHtml(lesson.excerpt)}</p>
             </div>
             <div class="actions">
-              <button class="edit-btn" onclick="editLesson('${lesson.id}')">✏️ แก้ไข</button>
+              <button class="edit-btn" onclick="editLesson('${lesson.id}')" ${isEditing ? 'disabled' : ''}>
+                ${isEditing ? '📝 กำลังแก้ไข...' : '✏️ แก้ไข'}
+              </button>
               <button class="delete-btn" onclick="deleteLesson('${lesson.id}')">🗑️ ลบ</button>
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
+    }
+
+    function setEditModeUI(lesson) {
+      editingLessonId = lesson.id;
+      document.getElementById('editing-lesson-id').value = lesson.id;
+
+      document.getElementById('form-section-title').textContent = '✏️ แก้ไขบทเรียน (Edit Lesson)';
+      document.getElementById('edit-mode-banner').hidden = false;
+      document.getElementById('edit-lesson-label').textContent = `"${lesson.title}"`;
+
+      document.getElementById('submit-btn').textContent = '💾 บันทึกการแก้ไข (Save Changes)';
+      document.getElementById('cancel-edit-btn').hidden = false;
+      document.getElementById('clear-btn').hidden = true;
+
+      // File is optional when editing
+      const fileInput = document.getElementById('lesson-content-file');
+      fileInput.required = false;
+      fileInput.value = '';
+
+      document.getElementById('file-label').textContent = '📄 เปลี่ยนไฟล์บทเรียน (Replace File — ไม่บังคับ)';
+      document.getElementById('file-hint').innerHTML =
+        'เว้นว่างไว้หากไม่ต้องการเปลี่ยนไฟล์ · อัปโหลดใหม่เฉพาะเมื่อต้องการแทนที่เนื้อหา (PDF / Markdown / Text)';
+
+      const currentFile = document.getElementById('current-file-info');
+      if (lesson.file) {
+        const typeLabel = lesson.type === 'pdf' ? 'PDF' : 'Markdown/Text';
+        currentFile.textContent = `📎 ไฟล์ปัจจุบัน: ${lesson.file} (${typeLabel})`;
+        currentFile.hidden = false;
+      } else {
+        currentFile.hidden = true;
+      }
+
+      const nameEl = document.getElementById('selected-file-name');
+      if (nameEl) { nameEl.hidden = true; nameEl.textContent = ''; }
+    }
+
+    function resetToCreateMode() {
+      editingLessonId = null;
+      document.getElementById('editing-lesson-id').value = '';
+
+      document.getElementById('form-section-title').textContent = '✍️ เขียนบทเรียนใหม่ (Create New Lesson)';
+      document.getElementById('edit-mode-banner').hidden = true;
+
+      document.getElementById('submit-btn').textContent = '📤 เผยแพร่บทเรียน (Publish Lesson)';
+      document.getElementById('cancel-edit-btn').hidden = true;
+      document.getElementById('clear-btn').hidden = false;
+
+      const fileInput = document.getElementById('lesson-content-file');
+      fileInput.required = true;
+      fileInput.value = '';
+
+      document.getElementById('file-label').textContent = '📄 อัปโหลดไฟล์บทเรียน (Upload Lesson File — PDF แนะนำ) *';
+      document.getElementById('file-hint').innerHTML =
+        'อัปโหลดไฟล์ <strong>PDF</strong> (แนะนำ) หรือ Markdown/Text ที่มีเนื้อหาบทเรียน';
+
+      document.getElementById('current-file-info').hidden = true;
+      const nameEl = document.getElementById('selected-file-name');
+      if (nameEl) { nameEl.hidden = true; nameEl.textContent = ''; }
+    }
+
+    function cancelEdit() {
+      document.getElementById('lesson-form').reset();
+      document.getElementById('lesson-date').valueAsDate = new Date();
+      resetToCreateMode();
+      // Re-render to clear "กำลังแก้ไข" highlight
+      const myLessons = allLessons.filter(l => {
+        if (!currentUser) return false;
+        const matchUserId = l.userId && String(l.userId) === String(currentUser.id || currentUser.userId);
+        const matchUsername = l.createdBy && l.createdBy.toLowerCase() === (currentUser.username || '').toLowerCase();
+        const matchAuthor = l.author && l.author.toLowerCase() === (currentUser.username || '').toLowerCase();
+        return matchUserId || matchUsername || matchAuthor || String(l.id).startsWith('demo-');
+      });
+      renderLessons(myLessons.length ? myLessons : allLessons);
+      showMessage('ยกเลิกการแก้ไขแล้ว — กลับสู่โหมดสร้างบทเรียนใหม่', 'success');
+    }
+
+    function editLesson(lessonId) {
+      const lesson = allLessons.find(l => String(l.id) === String(lessonId));
+      if (!lesson) {
+        showMessage('❌ ไม่พบบทเรียนที่ต้องการแก้ไข', 'error');
+        return;
+      }
+
+      // Populate form
+      document.getElementById('lesson-title').value = lesson.title || '';
+      document.getElementById('lesson-category').value = lesson.category || '';
+      document.getElementById('lesson-date').value = lesson.date || '';
+      document.getElementById('lesson-excerpt').value = lesson.excerpt || '';
+
+      setEditModeUI(lesson);
+
+      // Re-render cards to show editing state
+      const myLessons = allLessons.filter(l => {
+        if (!currentUser) return false;
+        const matchUserId = l.userId && String(l.userId) === String(currentUser.id || currentUser.userId);
+        const matchUsername = l.createdBy && l.createdBy.toLowerCase() === (currentUser.username || '').toLowerCase();
+        const matchAuthor = l.author && l.author.toLowerCase() === (currentUser.username || '').toLowerCase();
+        return matchUserId || matchUsername || matchAuthor || String(l.id).startsWith('demo-');
+      });
+      renderLessons(myLessons.length ? myLessons : allLessons);
+
+      // Scroll to form
+      document.getElementById('form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('lesson-title').focus();
     }
 
     async function handleSubmit(e) {
@@ -902,9 +1011,45 @@
       const excerpt = document.getElementById('lesson-excerpt').value.trim();
       const fileInput = document.getElementById('lesson-content-file');
       const contentFile = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+      const isEditing = !!editingLessonId;
 
-      if (!title || !category || !date || !excerpt || !contentFile) {
-        showMessage('กรุณากรอกข้อมูลให้ครบและอัปโหลดไฟล์บทเรียน (PDF แนะนำ หรือ .md/.txt)', 'error');
+      if (!title || !category || !date || !excerpt) {
+        showMessage('กรุณากรอกชื่อ หมวดหมู่ วันที่ และเนื้อหาย่อให้ครบ', 'error');
+        return;
+      }
+
+      // File required only when creating
+      if (!isEditing && !contentFile) {
+        showMessage('กรุณาอัปโหลดไฟล์บทเรียน (PDF แนะนำ หรือ .md/.txt)', 'error');
+        return;
+      }
+
+      // Demo mode: no real API
+      if (!localStorage.getItem('token')) {
+        if (isEditing) {
+          const idx = allLessons.findIndex(l => String(l.id) === String(editingLessonId));
+          if (idx !== -1) {
+            allLessons[idx] = {
+              ...allLessons[idx],
+              title, category, date, excerpt,
+              updatedAt: new Date().toISOString()
+            };
+          }
+          showMessage('✅ บันทึกการแก้ไขเรียบร้อย (โหมดตัวอย่าง — ไม่ได้ส่งไปเซิร์ฟเวอร์)', 'success');
+        } else {
+          const newId = 'demo-' + Date.now();
+          allLessons.push({
+            id: newId, title, category, date, excerpt,
+            file: contentFile ? contentFile.name : 'demo.md',
+            type: contentFile && contentFile.name.endsWith('.pdf') ? 'pdf' : 'markdown',
+            createdAt: new Date().toISOString()
+          });
+          showMessage('✅ เผยแพร่บทเรียนเรียบร้อย (โหมดตัวอย่าง)', 'success');
+        }
+        document.getElementById('lesson-form').reset();
+        document.getElementById('lesson-date').valueAsDate = new Date();
+        resetToCreateMode();
+        renderLessons(allLessons);
         return;
       }
 
@@ -914,39 +1059,59 @@
         formData.append('category', category);
         formData.append('date', date);
         formData.append('excerpt', excerpt);
-        formData.append('contentFile', contentFile);
+        if (contentFile) {
+          formData.append('contentFile', contentFile);
+        }
 
-        const response = await fetch(`${API_URL}/lessons`, {
-          method: 'POST',
+        const url = isEditing
+          ? `${API_URL}/lessons/${editingLessonId}`
+          : `${API_URL}/lessons`;
+        const method = isEditing ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method,
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
-            // Do not set Content-Type for FormData
           },
           body: formData
         });
 
         if (!response.ok) {
           const error = await response.json().catch(() => ({}));
-          throw new Error(error.error || 'Failed to save lesson');
+          throw new Error(error.error || (isEditing ? 'Failed to update lesson' : 'Failed to save lesson'));
         }
 
-        showMessage('✅ เผยแพร่บทเรียนเรียบร้อยแล้ว! (Lesson published successfully!)', 'success');
+        if (isEditing) {
+          showMessage('✅ บันทึกการแก้ไขเรียบร้อยแล้ว! (Lesson updated successfully!)', 'success');
+        } else {
+          showMessage('✅ เผยแพร่บทเรียนเรียบร้อยแล้ว! (Lesson published successfully!)', 'success');
+        }
+
         document.getElementById('lesson-form').reset();
         document.getElementById('lesson-date').valueAsDate = new Date();
-        const nameEl = document.getElementById('selected-file-name');
-        if (nameEl) { nameEl.hidden = true; nameEl.textContent = ''; }
+        resetToCreateMode();
         await loadLessons();
       } catch (err) {
         showMessage(`❌ ข้อผิดพลาด: ${err.message}`, 'error');
       }
     }
 
-    function editLesson(lessonId) {
-      alert('✏️ ฟังก์ชันแก้ไขฉบับเต็มกำลังพัฒนา!\n\nในระหว่างนี้ คุณสามารถ:\n1. ลบบทเรียนนี้\n2. เขียนและเผยแพร่เวอร์ชันใหม่ที่อัปเดตแล้ว');
-    }
-
     async function deleteLesson(lessonId) {
       if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบทเรียนนี้? การดำเนินการนี้ไม่สามารถยกเลิกได้')) {
+        return;
+      }
+
+      // If deleting the lesson currently being edited, exit edit mode
+      if (editingLessonId && String(editingLessonId) === String(lessonId)) {
+        document.getElementById('lesson-form').reset();
+        document.getElementById('lesson-date').valueAsDate = new Date();
+        resetToCreateMode();
+      }
+
+      if (!localStorage.getItem('token')) {
+        allLessons = allLessons.filter(l => String(l.id) !== String(lessonId));
+        showMessage('🗑️ ลบบทเรียนเรียบร้อย (โหมดตัวอย่าง)', 'success');
+        renderLessons(allLessons);
         return;
       }
 
@@ -959,7 +1124,7 @@
         });
 
         if (!response.ok) {
-          const error = await response.json();
+          const error = await response.json().catch(() => ({}));
           throw new Error(error.error || 'Failed to delete lesson');
         }
 
@@ -986,7 +1151,9 @@
       container.style.padding = '12px 14px';
       container.style.borderRadius = '8px';
       container.style.background = type === 'error' ? '#fbeae5' : '#eef7ee';
-      container.style.borderLeft = type === 'error' ? '5px solid var(--retro-rust)' : '5px solid var(--retro-avocado-green)';
+      container.style.borderLeft = type === 'error'
+        ? '5px solid var(--retro-rust)'
+        : '5px solid var(--retro-avocado-green)';
       container.style.display = 'block';
 
       setTimeout(() => {
