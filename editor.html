@@ -261,12 +261,6 @@
       gap: 18px;
     }
 
-    @media (max-width: 650px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
     .form-group {
       margin-bottom: 18px;
     }
@@ -553,6 +547,152 @@
       padding: 24px 0;
       text-align: center;
       margin-top: 60px;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px 14px;
+      }
+
+      .editor-header {
+        padding: 20px 18px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+      }
+
+      .editor-header h1 {
+        font-size: 1.6rem;
+      }
+
+      .header-controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .section {
+        padding: 24px 18px;
+      }
+
+      .section-title {
+        font-size: 1.3rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .lessons-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .container {
+        padding: 12px 10px;
+      }
+
+      .editor-header {
+        padding: 16px 14px;
+        border-radius: 10px;
+      }
+
+      .editor-header::after {
+        width: 70px;
+        height: 70px;
+      }
+
+      .brand-badge {
+        font-size: 0.72rem;
+      }
+
+      .editor-header h1 {
+        font-size: 1.35rem;
+      }
+
+      .editor-header p {
+        font-size: 0.88rem;
+      }
+
+      .header-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .user-info {
+        justify-content: center;
+        font-size: 0.85rem;
+      }
+
+      .btn-nav {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.85rem;
+        padding: 10px 14px;
+      }
+
+      .section {
+        padding: 18px 14px;
+        border-radius: 10px;
+        margin-bottom: 24px;
+      }
+
+      .section-title {
+        font-size: 1.15rem;
+        flex-wrap: wrap;
+      }
+
+      label {
+        font-size: 0.88rem;
+      }
+
+      input[type="text"],
+      input[type="date"],
+      textarea {
+        font-size: 0.92rem;
+        padding: 10px 12px;
+      }
+
+      .btn {
+        font-size: 0.9rem;
+        padding: 10px 16px;
+      }
+
+      .my-lessons h2 {
+        font-size: 1.3rem;
+      }
+
+      .lesson-card {
+        padding: 16px 14px;
+      }
+
+      .site-footer {
+        padding: 18px 0;
+        margin-top: 36px;
+        font-size: 0.82rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .editor-header h1 {
+        font-size: 1.2rem;
+      }
+
+      .section-title {
+        font-size: 1.05rem;
+      }
     }
   </style>
 </head>
