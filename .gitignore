@@ -2,95 +2,71 @@
 node_modules/
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
 
-# Environment variables
+# Environment & secrets
 .env
-.env.local
-.env.*.local
-
-# Sensitive data
-users.json
+.env.*
+!.env.example
 *.key
 *.pem
 *.crt
-
-# Generated/Temporary files
-lessons/manifest.json
-*.tmp
-*.temp
-tmp/
-temp/
+users.json
 
 # Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
-*.log
 
-# OS files
+# OS
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE / Editor
-.vscode/
-.idea/
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-*.swp
-*.swo
-*~
-.sublime-project
-.sublime-workspace
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-
-# Build outputs
-dist/
-build/
-out/
-
-# Local development
-.local
-.cache
-.eslintcache
-
-# Mac specific
-.AppleDouble
-.LSOverride
-
-# Windows specific
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Editor backups
-*~
+# Editors / IDEs
+.vscode/
+!.vscode/extensions.json
+.idea/
 *.swp
 *.swo
-*.bak
-*~.nib
+*~
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
 
-# Project specific
+# Build / cache
+dist/
+build/
+out/
+.cache/
+.eslintcache
+.prettiercache
+
+# Temp & backups
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
 backup/
 backups/
-*.backup
-old_*
-admin-old.js
-admin-new.html
 
-# VS Code extensions
-.vscode-test/
+# Project-specific (optional — uncomment if you don't want these in git)
+# lessons/manifest.json
+# lessons/pdfs/
+# lessons/*.md
+# lessons/*.pdf
+
+# Misc
 .history/
-
-# misc
-.prettierignore
+.local/

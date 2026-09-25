@@ -1,38 +1,29 @@
 [
   {
-    "id": "0001-foundation-of-a-disciple",
-    "title": "รากฐานของสาวกที่แท้จริง",
-    "category": "รากฐานความเชื่อ",
-    "date": "2026-09-01",
-    "excerpt": "บทเรียนเปิดสำหรับการเริ่มต้นเป็นสาวกของพระเยซูอย่างจริงจัง ไม่ใช่แค่การเข้าร่วมกิจกรรม",
-    "file": "0001-foundation-of-a-disciple.md"
-  },
-  {
-    "id": "0002-a-servant-leader",
-    "title": "ผู้นำที่รับใช้",
-    "category": "การเป็นผู้นำ",
-    "date": "2026-09-08",
-    "excerpt": "ผู้นำรุ่นใหม่เริ่มต้นจากหัวใจที่รับใช้ ไม่ใช่ตำแหน่งหรืออำนาจ",
-    "file": "0002-a-servant-leader.md"
-  },
-  {
-    "id": "0003-growing-in-cell-life",
-    "title": "การเติบโตในชีวิตกลุ่มเซลล์",
-    "category": "ชีวิตกลุ่มเซลล์",
-    "date": "2026-09-15",
-    "excerpt": "ทำไมกลุ่มเซลล์เล็ก ๆ ถึงเป็นพื้นที่สำคัญของการเติบโตฝ่ายวิญญาณ",
-    "file": "0003-growing-in-cell-life.md"
-  },
-  {
-    "id": "0007",
-    "title": "admin",
-    "category": "admin",
+    "id": "0008",
+    "title": "pdf1",
+    "category": "pdf1",
     "date": "2026-09-25",
-    "excerpt": "admin",
-    "file": "0007.md",
+    "excerpt": "pdf1",
+    "file": "pdfs/0008.pdf",
+    "type": "pdf",
     "createdBy": "admin",
     "userId": "admin_1790150000000",
-    "createdAt": "2026-09-25T02:19:42.718Z",
-    "updatedAt": "2026-09-25T02:19:42.718Z"
+    "createdAt": "2026-09-25T08:37:54.083Z",
+    "updatedAt": "2026-09-25T08:38:09.403Z",
+    "updatedBy": "admin"
+  },
+  {
+    "id": "0009",
+    "title": "t1",
+    "category": "t1",
+    "date": "2026-09-25",
+    "excerpt": "t1asdsadsadsadasdsadewrdswedqwdw",
+    "file": "pdfs/0009.pdf",
+    "type": "pdf",
+    "createdBy": "t1",
+    "userId": "writer_1790235666950",
+    "createdAt": "2026-09-25T08:41:30.636Z",
+    "updatedAt": "2026-09-25T08:41:30.636Z"
   }
 ]

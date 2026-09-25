@@ -112,15 +112,37 @@ async function openLesson(lesson) {
   showReader();
   window.scrollTo({ top: 0 });
 
+  const isPdf =
+    lesson.type === 'pdf' ||
+    (lesson.file && String(lesson.file).toLowerCase().endsWith('.pdf'));
+
   try {
-    const res = await fetch('lessons/' + lesson.file, { cache: 'no-store' });
-    const md = await res.text();
-    const body = window.marked ? marked.parse(md) : '<pre>' + escapeHtml(md) + '</pre>';
-    readerContent.innerHTML = `
-      <p class="r-meta"><span class="cat">${escapeHtml(lesson.category)}</span> · ${formatDate(lesson.date)}</p>
-      <h1>${escapeHtml(lesson.title)}</h1>
-      ${body}
-    `;
+    if (isPdf) {
+      const pdfUrl = 'lessons/' + lesson.file;
+      readerContent.innerHTML = `
+        <p class="r-meta"><span class="cat">${escapeHtml(lesson.category)}</span> · ${formatDate(lesson.date)}</p>
+        <h1>${escapeHtml(lesson.title)}</h1>
+        <div class="pdf-viewer-wrap" style="margin-top:16px;">
+          <iframe
+            src="${escapeHtml(pdfUrl)}"
+            title="${escapeHtml(lesson.title)}"
+            style="width:100%;height:80vh;border:2px solid #2c221e;border-radius:8px;background:#fff;"
+          ></iframe>
+          <p style="margin-top:12px;font-size:0.9rem;">
+            <a href="${escapeHtml(pdfUrl)}" target="_blank" rel="noopener">📥 เปิด PDF ในแท็บใหม่ / ดาวน์โหลด</a>
+          </p>
+        </div>
+      `;
+    } else {
+      const res = await fetch('lessons/' + lesson.file, { cache: 'no-store' });
+      const md = await res.text();
+      const body = window.marked ? marked.parse(md) : '<pre>' + escapeHtml(md) + '</pre>';
+      readerContent.innerHTML = `
+        <p class="r-meta"><span class="cat">${escapeHtml(lesson.category)}</span> · ${formatDate(lesson.date)}</p>
+        <h1>${escapeHtml(lesson.title)}</h1>
+        ${body}
+      `;
+    }
   } catch (err) {
     readerContent.innerHTML = '<p>โหลดเนื้อหาบทเรียนไม่สำเร็จ</p>';
   }

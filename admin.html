@@ -791,10 +791,14 @@
           </div>
           <div class="form-group"> <label for="lesson-excerpt">สรุปสั้น ๆ (Excerpt):</label> <input type="text"
               id="lesson-excerpt" placeholder="บรรยายสั้น ๆ สรุปใจความสำคัญของบทเรียน" required> </div>
-          <div class="form-group"> <label for="lesson-content">เนื้อหาบทเรียน (Lesson Content - Markdown):</label>
-            <textarea id="lesson-content"
-              placeholder="# ชื่อหัวข้อหลัก&#10;&#10;เนื้อหาของบทเรียน...&#10;&#10;## หัวข้อย่อย&#10;&#10;- จุดสำคัญที่ 1&#10;- จุดสำคัญที่ 2"
-              required></textarea>
+          <div class="form-group">
+            <label for="lesson-content-file">📄 อัปโหลดไฟล์บทเรียน (Upload Lesson File — PDF แนะนำ):</label>
+            <input type="file" id="lesson-content-file" accept=".pdf,application/pdf,.md,.txt,.markdown,text/plain,text/markdown"
+              style="padding: 10px; border: 2px solid var(--retro-border); border-radius: 6px; background: #fff; width: 100%; cursor: pointer;">
+            <p id="content-file-hint" style="font-size: 0.85rem; color: var(--retro-ink-muted); margin-top: 6px;">
+              อัปโหลดไฟล์ <strong>PDF</strong> (แนะนำ) หรือ Markdown/Text — สร้างใหม่ต้องมีไฟล์ · แก้ไขข้ามได้เพื่อคงไฟล์เดิม
+            </p>
+            <p id="selected-file-name" style="font-size: 0.9rem; color: var(--retro-avocado-green); margin-top: 4px; font-weight: 600;" hidden></p>
           </div>
           <div class="form-actions"> <button type="submit" class="btn btn-primary">💾 บันทึกบทเรียน (Publish
               Lesson)</button> <button type="reset" class="btn btn-secondary"

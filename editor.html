@@ -591,10 +591,15 @@
         <div class="form-group"> <label for="lesson-excerpt">เนื้อหาย่อ / สรุปสาระสำคัญ (Excerpt/Summary) *</label>
           <textarea id="lesson-excerpt" placeholder="เขียนสรุปสั้น ๆ ของบทเรียนเพื่อแสดงในการ์ดหน้าแรก..." rows="2"
             required></textarea> </div>
-        <div class="form-group"> <label for="lesson-content">เนื้อหาบทเรียนฉบับเต็ม (Lesson Content - รองรับ Markdown)
-            *</label> <textarea id="lesson-content"
-            placeholder="เขียนเนื้อหาบทเรียนที่นี่... (รองรับการจัดรูปแบบ Markdown เช่น # หัวข้อ, **ตัวหนา**, รายการข้อ)"
-            rows="12" required></textarea> </div>
+        <div class="form-group">
+          <label for="lesson-content-file">📄 อัปโหลดไฟล์บทเรียน (Upload Lesson File — PDF แนะนำ) *</label>
+          <input type="file" id="lesson-content-file" accept=".pdf,application/pdf,.md,.txt,.markdown,text/plain,text/markdown" required
+            style="padding: 10px; border: 2px solid var(--retro-border); border-radius: 6px; background: #fff; width: 100%; cursor: pointer;">
+          <p style="font-size: 0.85rem; color: var(--retro-ink-muted); margin-top: 6px;">
+            อัปโหลดไฟล์ <strong>PDF</strong> (แนะนำ) หรือ Markdown/Text ที่มีเนื้อหาบทเรียน
+          </p>
+          <p id="selected-file-name" style="font-size: 0.9rem; color: var(--retro-avocado-green); margin-top: 4px; font-weight: 600;" hidden></p>
+        </div>
         <div class="form-actions"> <button type="submit" class="btn btn-primary">📤 เผยแพร่บทเรียน (Publish
             Lesson)</button> <button type="reset" class="btn btn-secondary">🔄 ล้างข้อมูล (Clear)</button> </div>
         <div id="form-message"></div>
@@ -654,6 +659,21 @@
 
       // Setup event listeners
       document.getElementById('lesson-form').addEventListener('submit', handleSubmit);
+
+      const fileInput = document.getElementById('lesson-content-file');
+      if (fileInput) {
+        fileInput.addEventListener('change', () => {
+          const nameEl = document.getElementById('selected-file-name');
+          if (!nameEl) return;
+          if (fileInput.files && fileInput.files[0]) {
+            nameEl.textContent = `✅ เลือกแล้ว: ${fileInput.files[0].name}`;
+            nameEl.hidden = false;
+          } else {
+            nameEl.hidden = true;
+            nameEl.textContent = '';
+          }
+        });
+      }
     }
 
     async function loadLessons() {
@@ -740,38 +760,41 @@
       const category = document.getElementById('lesson-category').value.trim();
       const date = document.getElementById('lesson-date').value;
       const excerpt = document.getElementById('lesson-excerpt').value.trim();
-      const content = document.getElementById('lesson-content').value.trim();
+      const fileInput = document.getElementById('lesson-content-file');
+      const contentFile = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
 
-      if (!title || !category || !date || !excerpt || !content) {
-        showMessage('กรุณากรอกข้อมูลให้ครบทุกช่องที่จำเป็น (Please fill in all fields)', 'error');
+      if (!title || !category || !date || !excerpt || !contentFile) {
+        showMessage('กรุณากรอกข้อมูลให้ครบและอัปโหลดไฟล์บทเรียน (PDF แนะนำ หรือ .md/.txt)', 'error');
         return;
       }
 
       try {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('category', category);
+        formData.append('date', date);
+        formData.append('excerpt', excerpt);
+        formData.append('contentFile', contentFile);
+
         const response = await fetch(`${API_URL}/lessons`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
+            // Do not set Content-Type for FormData
           },
-          body: JSON.stringify({ 
-            title, 
-            category, 
-            date, 
-            excerpt, 
-            content,
-            createdBy: currentUser ? currentUser.username : undefined // ส่งชื่อผู้เขียนไปด้วย
-          })
+          body: formData
         });
 
         if (!response.ok) {
-          const error = await response.json();
+          const error = await response.json().catch(() => ({}));
           throw new Error(error.error || 'Failed to save lesson');
         }
 
         showMessage('✅ เผยแพร่บทเรียนเรียบร้อยแล้ว! (Lesson published successfully!)', 'success');
         document.getElementById('lesson-form').reset();
         document.getElementById('lesson-date').valueAsDate = new Date();
+        const nameEl = document.getElementById('selected-file-name');
+        if (nameEl) { nameEl.hidden = true; nameEl.textContent = ''; }
         await loadLessons();
       } catch (err) {
         showMessage(`❌ ข้อผิดพลาด: ${err.message}`, 'error');

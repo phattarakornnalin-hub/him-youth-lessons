@@ -138,23 +138,45 @@ async function loadLessonsFromAPI() {
   }
 }
 
-async function saveLesson(lesson) {
+async function saveLesson(lesson, contentFile) {
   try {
-    const isUpdate = allLessons.some((l) => l.id === lesson.id);
+    // Prefer explicit edit mode from the form; fall back to id presence
+    const isUpdate = !!(lessonForm.dataset.editId || (lesson.id && allLessons.some((l) => l.id === lesson.id)));
     const method = isUpdate ? 'PUT' : 'POST';
-    const url = isUpdate ? `${API_URL}/lessons/${lesson.id}` : `${API_URL}/lessons`;
+    const url = isUpdate ? `${API_URL}/lessons/${lesson.id || lessonForm.dataset.editId}` : `${API_URL}/lessons`;
 
-    const res = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${currentToken}`
-      },
-      body: JSON.stringify(lesson),
-    });
+    let res;
+    if (contentFile) {
+      // Upload via multipart/form-data
+      const formData = new FormData();
+      formData.append('title', lesson.title);
+      formData.append('category', lesson.category);
+      formData.append('date', lesson.date);
+      formData.append('excerpt', lesson.excerpt);
+      formData.append('contentFile', contentFile);
+
+      res = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${currentToken}`,
+          // Do NOT set Content-Type — browser sets multipart boundary
+        },
+        body: formData,
+      });
+    } else {
+      // Fallback JSON (e.g. edit without changing content file)
+      res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentToken}`,
+        },
+        body: JSON.stringify(lesson),
+      });
+    }
 
     if (!res.ok) {
-      const error = await res.json();
+      const error = await res.json().catch(() => ({}));
       throw new Error(error.error || 'Failed to save lesson');
     }
 
@@ -256,8 +278,20 @@ function loadLessonForEdit(lesson) {
   document.getElementById('lesson-category').value = lesson.category;
   document.getElementById('lesson-date').value = lesson.date;
   document.getElementById('lesson-excerpt').value = lesson.excerpt;
-  document.getElementById('lesson-content').value = lesson.content || '';
-  
+
+  // Clear any previously selected file; content stays on server unless re-uploaded
+  const fileInput = document.getElementById('lesson-content-file');
+  if (fileInput) fileInput.value = '';
+  const nameEl = document.getElementById('selected-file-name');
+  if (nameEl) {
+    nameEl.hidden = true;
+    nameEl.textContent = '';
+  }
+  const hint = document.getElementById('content-file-hint');
+  if (hint) {
+    hint.textContent = `กำลังแก้ไข: ${lesson.id} — อัปโหลดไฟล์ใหม่เฉพาะเมื่อต้องการเปลี่ยนเนื้อหา (ไม่บังคับ)`;
+  }
+
   lessonForm.dataset.editId = lesson.id;
   lessonForm.querySelector('button[type="submit"]').textContent = '💾 อัปเดตบทเรียน';
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -371,33 +405,65 @@ function renderUsersList() {
 
 // ============ EVENT LISTENERS ============
 function setupEventListeners() {
-  // Lesson form
+  // Lesson form — content comes from uploaded file
   lessonForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const isUpdate = lessonForm.dataset.editId;
-    const lessonID = isUpdate ? lessonForm.dataset.editId : generateNextID();
+    const fileInput = document.getElementById('lesson-content-file');
+    const contentFile = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+    // New lessons require a file
+    if (!isUpdate && !contentFile) {
+      alert('❌ กรุณาอัปโหลดไฟล์บทเรียน (PDF แนะนำ หรือ .md/.txt)');
+      return;
+    }
 
     const lesson = {
-      id: lessonID,
+      id: isUpdate || undefined,
       title: document.getElementById('lesson-title').value.trim(),
       category: document.getElementById('lesson-category').value.trim(),
       date: document.getElementById('lesson-date').value,
       excerpt: document.getElementById('lesson-excerpt').value.trim(),
-      file: `${lessonID}.md`,
-      content: document.getElementById('lesson-content').value,
     };
 
     try {
-      await saveLesson(lesson);
-      alert(`✅ ${isUpdate ? 'อัปเดต' : 'บันทึก'}สำเร็จ!\nID: ${lessonID}`);
+      await saveLesson(lesson, contentFile);
+      alert(`✅ ${isUpdate ? 'อัปเดต' : 'บันทึก'}สำเร็จ!`);
       lessonForm.reset();
       lessonForm.dataset.editId = '';
+      const nameEl = document.getElementById('selected-file-name');
+      if (nameEl) {
+        nameEl.hidden = true;
+        nameEl.textContent = '';
+      }
+      const hint = document.getElementById('content-file-hint');
+      if (hint) {
+        hint.textContent =
+          'อัปโหลดไฟล์ PDF (แนะนำ) หรือ Markdown/Text — สร้างใหม่ต้องมีไฟล์ · แก้ไขข้ามได้เพื่อคงไฟล์เดิม';
+      }
+      lessonForm.querySelector('button[type="submit"]').textContent = '💾 บันทึกบทเรียน (Publish Lesson)';
       setTodayDate();
     } catch (err) {
       alert('บันทึกไม่สำเร็จ: ' + err.message);
     }
   });
+
+  // Show selected filename
+  const fileInput = document.getElementById('lesson-content-file');
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      const nameEl = document.getElementById('selected-file-name');
+      if (!nameEl) return;
+      if (fileInput.files && fileInput.files[0]) {
+        nameEl.textContent = `✅ เลือกแล้ว: ${fileInput.files[0].name}`;
+        nameEl.hidden = false;
+      } else {
+        nameEl.hidden = true;
+        nameEl.textContent = '';
+      }
+    });
+  }
 
   // User form
   userForm.addEventListener('submit', async (e) => {

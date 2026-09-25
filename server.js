@@ -7,10 +7,32 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const crypto = require('crypto');
+const multer = require('multer');
 const auth = require('./auth-middleware');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Multer: store uploaded lesson files in memory (PDF or Markdown)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB for PDFs
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = [
+      'application/pdf',
+      'text/plain',
+      'text/markdown',
+      'text/x-markdown',
+      'application/octet-stream',
+    ];
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    if (allowedMimes.includes(file.mimetype) || ['.pdf', '.md', '.txt', '.markdown'].includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF (.pdf) or Markdown/Text (.md, .txt) files are allowed'));
+    }
+  },
+});
 
 // Middleware
 app.use(cors());
@@ -18,12 +40,16 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static('.'));
 
 const LESSONS_DIR = path.join(__dirname, 'lessons');
+const PDFS_DIR = path.join(LESSONS_DIR, 'pdfs');
 const MANIFEST_FILE = path.join(LESSONS_DIR, 'manifest.json');
 const USERS_FILE = path.join(__dirname, 'users.json');
 
-// Ensure lessons directory exists
+// Ensure directories exist
 if (!fs.existsSync(LESSONS_DIR)) {
   fs.mkdirSync(LESSONS_DIR, { recursive: true });
+}
+if (!fs.existsSync(PDFS_DIR)) {
+  fs.mkdirSync(PDFS_DIR, { recursive: true });
 }
 
 // Load manifest from file
@@ -87,11 +113,18 @@ app.get('/api/lessons/:id', (req, res) => {
       return res.status(404).json({ error: 'Lesson not found' });
     }
 
-    // Read content from .md file
-    const filePath = path.join(LESSONS_DIR, lesson.file);
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, 'utf-8');
-      lesson.content = content;
+    // Read text content only for markdown lessons (PDFs are served as static files)
+    const isPdf =
+      lesson.type === 'pdf' ||
+      (lesson.file && lesson.file.toLowerCase().endsWith('.pdf'));
+    if (!isPdf) {
+      const filePath = path.join(LESSONS_DIR, lesson.file);
+      if (fs.existsSync(filePath)) {
+        lesson.content = fs.readFileSync(filePath, 'utf-8');
+      }
+    } else {
+      lesson.type = 'pdf';
+      lesson.contentUrl = '/lessons/' + lesson.file;
     }
 
     res.json(lesson);
@@ -160,90 +193,191 @@ app.get('/api/auth/me', auth.authenticateToken, (req, res) => {
 
 // ============ LESSON MANAGEMENT ROUTES (Protected) ============
 
-// POST create new lesson (Writers and Admins only)
-app.post('/api/lessons', auth.authenticateToken, auth.requireRole('writer', 'admin'), (req, res) => {
-  try {
-    const { title, category, date, excerpt, content } = req.body;
+// Helper: extract title/category/date/excerpt/content from either JSON body or multipart
+function isPdfUpload(file) {
+  if (!file) return false;
+  const ext = path.extname(file.originalname || '').toLowerCase();
+  return file.mimetype === 'application/pdf' || ext === '.pdf';
+}
 
-    if (!title || !category || !date || !excerpt || !content) {
-      return res.status(400).json({ error: 'Missing required fields' });
+function extractLessonFields(req) {
+  // Prefer uploaded file; detect PDF vs text
+  let content = null; // text content (md/txt only)
+  let isPdf = false;
+  let fileBuffer = null;
+
+  if (req.file && req.file.buffer) {
+    fileBuffer = req.file.buffer;
+    isPdf = isPdfUpload(req.file);
+    if (!isPdf) {
+      content = req.file.buffer.toString('utf-8');
     }
-
-    const lessons = loadManifest();
-    const id = generateNextID(lessons);
-    const file = `${id}.md`;
-
-    // Save .md file
-    const filePath = path.join(LESSONS_DIR, file);
-    fs.writeFileSync(filePath, content, 'utf-8');
-    console.log(`📝 Saved: ${file}`);
-
-    // Add to manifest with creator info
-    const lesson = {
-      id,
-      title,
-      category,
-      date,
-      excerpt,
-      file,
-      createdBy: req.user.username,
-      userId: req.user.userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    lessons.push(lesson);
-
-    saveManifest(lessons);
-
-    res.status(201).json(lesson);
-  } catch (err) {
-    console.error('Error creating lesson:', err);
-    res.status(500).json({ error: err.message });
+  } else if (req.body && req.body.content !== undefined) {
+    content = req.body.content;
   }
-});
+
+  return {
+    title: (req.body.title || '').trim(),
+    category: (req.body.category || '').trim(),
+    date: (req.body.date || '').trim(),
+    excerpt: (req.body.excerpt || '').trim(),
+    content,
+    isPdf,
+    fileBuffer,
+    originalName: req.file ? req.file.originalname : null,
+  };
+}
+
+// POST create new lesson (Writers and Admins only)
+// Accepts either JSON { title, category, date, excerpt, content }
+// or multipart/form-data with the same fields + optional file field "contentFile"
+app.post(
+  '/api/lessons',
+  auth.authenticateToken,
+  auth.requireRole('writer', 'admin'),
+  (req, res, next) => {
+    // Only run multer when Content-Type is multipart
+    const ct = req.headers['content-type'] || '';
+    if (ct.includes('multipart/form-data')) {
+      return upload.single('contentFile')(req, res, next);
+    }
+    next();
+  },
+  (req, res) => {
+    try {
+      const { title, category, date, excerpt, content, isPdf, fileBuffer, originalName } =
+        extractLessonFields(req);
+
+      const hasContent = isPdf ? !!fileBuffer : !!content;
+      if (!title || !category || !date || !excerpt || !hasContent) {
+        return res.status(400).json({
+          error:
+            'Missing required fields (title, category, date, excerpt, and contentFile). Upload a PDF or Markdown file.',
+        });
+      }
+
+      const lessons = loadManifest();
+      const id = generateNextID(lessons);
+
+      let file;
+      let type;
+      if (isPdf) {
+        type = 'pdf';
+        file = `pdfs/${id}.pdf`;
+        const filePath = path.join(LESSONS_DIR, file);
+        fs.writeFileSync(filePath, fileBuffer);
+        console.log(`📄 Saved PDF: ${file} (from ${originalName})`);
+      } else {
+        type = 'markdown';
+        file = `${id}.md`;
+        const filePath = path.join(LESSONS_DIR, file);
+        fs.writeFileSync(filePath, content, 'utf-8');
+        console.log(`📝 Saved: ${file}${originalName ? ' (from ' + originalName + ')' : ''}`);
+      }
+
+      const lesson = {
+        id,
+        title,
+        category,
+        date,
+        excerpt,
+        file,
+        type,
+        createdBy: req.user.username,
+        userId: req.user.userId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      lessons.push(lesson);
+
+      saveManifest(lessons);
+
+      res.status(201).json(lesson);
+    } catch (err) {
+      console.error('Error creating lesson:', err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 
 // PUT update lesson (Only creator or Admin)
-app.put('/api/lessons/:id', auth.authenticateToken, (req, res) => {
-  try {
-    const { title, category, date, excerpt, content } = req.body;
-    const lessons = loadManifest();
-
-    const lessonIndex = lessons.findIndex((l) => l.id === req.params.id);
-    if (lessonIndex === -1) {
-      return res.status(404).json({ error: 'Lesson not found' });
+// Accepts JSON or multipart (with optional contentFile)
+app.put(
+  '/api/lessons/:id',
+  auth.authenticateToken,
+  (req, res, next) => {
+    const ct = req.headers['content-type'] || '';
+    if (ct.includes('multipart/form-data')) {
+      return upload.single('contentFile')(req, res, next);
     }
+    next();
+  },
+  (req, res) => {
+    try {
+      const { title, category, date, excerpt, content, isPdf, fileBuffer, originalName } =
+        extractLessonFields(req);
+      const lessons = loadManifest();
 
-    const lesson = lessons[lessonIndex];
+      const lessonIndex = lessons.findIndex((l) => l.id === req.params.id);
+      if (lessonIndex === -1) {
+        return res.status(404).json({ error: 'Lesson not found' });
+      }
 
-    // Check permissions: Only creator or admin can edit
-    if (req.user.role !== 'admin' && lesson.userId !== req.user.userId) {
-      return res.status(403).json({ error: 'You can only edit your own lessons' });
+      const lesson = lessons[lessonIndex];
+
+      // Check permissions: Only creator or admin can edit
+      if (req.user.role !== 'admin' && lesson.userId !== req.user.userId) {
+        return res.status(403).json({ error: 'You can only edit your own lessons' });
+      }
+
+      // Update metadata fields
+      if (title) lesson.title = title;
+      if (category) lesson.category = category;
+      if (date) lesson.date = date;
+      if (excerpt) lesson.excerpt = excerpt;
+      lesson.updatedAt = new Date().toISOString();
+      lesson.updatedBy = req.user.username;
+
+      // Replace content file if a new one was uploaded
+      if (fileBuffer) {
+        // Remove old file if path changes (e.g. md -> pdf or vice versa)
+        const oldPath = path.join(LESSONS_DIR, lesson.file);
+        if (isPdf) {
+          lesson.type = 'pdf';
+          lesson.file = `pdfs/${lesson.id}.pdf`;
+          const newPath = path.join(LESSONS_DIR, lesson.file);
+          fs.writeFileSync(newPath, fileBuffer);
+          if (oldPath !== newPath && fs.existsSync(oldPath)) {
+            try { fs.unlinkSync(oldPath); } catch (_) {}
+          }
+          console.log(`📄 Updated PDF: ${lesson.file} (from ${originalName})`);
+        } else {
+          lesson.type = 'markdown';
+          lesson.file = `${lesson.id}.md`;
+          const newPath = path.join(LESSONS_DIR, lesson.file);
+          fs.writeFileSync(newPath, content, 'utf-8');
+          if (oldPath !== newPath && fs.existsSync(oldPath)) {
+            try { fs.unlinkSync(oldPath); } catch (_) {}
+          }
+          console.log(`✏️ Updated: ${lesson.file} (from ${originalName})`);
+        }
+      } else if (content !== null && content !== undefined) {
+        // JSON text update for markdown lessons
+        const filePath = path.join(LESSONS_DIR, lesson.file);
+        fs.writeFileSync(filePath, content, 'utf-8');
+        console.log(`✏️ Updated: ${lesson.file}`);
+      }
+
+      lessons[lessonIndex] = lesson;
+      saveManifest(lessons);
+
+      res.json(lesson);
+    } catch (err) {
+      console.error('Error updating lesson:', err);
+      res.status(500).json({ error: err.message });
     }
-
-    // Update fields
-    if (title !== undefined) lesson.title = title;
-    if (category !== undefined) lesson.category = category;
-    if (date !== undefined) lesson.date = date;
-    if (excerpt !== undefined) lesson.excerpt = excerpt;
-    lesson.updatedAt = new Date().toISOString();
-    lesson.updatedBy = req.user.username;
-
-    // Update .md file if content provided
-    if (content !== undefined) {
-      const filePath = path.join(LESSONS_DIR, lesson.file);
-      fs.writeFileSync(filePath, content, 'utf-8');
-      console.log(`✏️ Updated: ${lesson.file}`);
-    }
-
-    lessons[lessonIndex] = lesson;
-    saveManifest(lessons);
-
-    res.json(lesson);
-  } catch (err) {
-    console.error('Error updating lesson:', err);
-    res.status(500).json({ error: err.message });
   }
-});
+);
 
 // DELETE lesson (Only creator or Admin)
 app.delete('/api/lessons/:id', auth.authenticateToken, (req, res) => {

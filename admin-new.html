@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ HIM Youth - Admin Panel</title>
+  <link rel="stylesheet" href="admin-style.css">
+  <style>
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .user-info {
+      background: #f0f4ff;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .user-info strong {
+      color: #667eea;
+    }
+
+    .logout-btn {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: #ff5252;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e0e0e0;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-btn:hover {
+      color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* User Management */
+    .users-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .users-table th {
+      background: #f5f7ff;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .users-table td {
+      padding: 12px;
+      border-bottom: 1px solid #e0e0e0;
+      color: #555;
+    }
+
+    .users-table tr:hover {
+      background: #fafafa;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .role-admin {
+      background: #ffe0e0;
+      color: #c33;
+    }
+
+    .role-writer {
+      background: #e0f0ff;
+      color: #0066cc;
+    }
+
+    .action-btn {
+      padding: 6px 10px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .edit-btn {
+      background: #667eea;
+      color: white;
+    }
+
+    .edit-btn:hover {
+      background: #5568d3;
+    }
+
+    .delete-btn {
+      background: #fee;
+      color: #c33;
+    }
+
+    .delete-btn:hover {
+      background: #fdd;
+    }
+
+    .create-user-form {
+      background: #f5f7ff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+
+    .create-user-form .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.2s;
+    }
+
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 90%;
+      animation: slideIn 0.2s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .close-modal {
+      float: right;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+
+    .close-modal:hover {
+      color: #333;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .stat-card .label {
+      color: #666;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .success-message {
+      background: #efe;
+      color: #3c3;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border-left: 4px solid #3c3;
+    }
+
+    .error-message {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border-left: 4px solid #c33;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="admin-header">
+      <div>
+        <h1>⚙️ Admin Control Panel</h1>
+        <p style="color: #666; margin-top: 5px;">Manage lessons, users, and settings</p>
+      </div>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="user-info">
+          👤 <strong id="username">Admin</strong> (Administrator)
+        </div>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+      </div>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <div class="number" id="lesson-count">0</div>
+        <div class="label">📚 Total Lessons</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="user-count">0</div>
+        <div class="label">👥 Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="writer-count">0</div>
+        <div class="label">✍️ Active Writers</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('lessons')">📚 Lessons</button>
+      <button class="tab-btn" onclick="switchTab('users')">👥 Manage Users</button>
+      <button class="tab-btn" onclick="switchTab('settings')">⚙️ Settings</button>
+    </div>
+
+    <!-- Lessons Tab -->
+    <div id="lessons" class="tab-content active">
+      <div class="section">
+        <h2>📚 All Lessons</h2>
+        <div id="lesson-message"></div>
+        <div id="lessons-list" style="margin-top: 20px;"></div>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="users" class="tab-content">
+      <div class="section">
+        <h2>👥 Manage Writers & Users</h2>
+        
+        <div class="create-user-form">
+          <h3>➕ Create New Writer Account</h3>
+          <form id="create-user-form">
+            <div class="create-user-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="new-username">Username *</label>
+                  <input type="text" id="new-username" placeholder="e.g., john_writer" required>
+                </div>
+                <div class="form-group">
+                  <label for="new-email">Email *</label>
+                  <input type="email" id="new-email" placeholder="writer@example.com" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="new-password">Password *</label>
+                <input type="password" id="new-password" placeholder="Set initial password" required>
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top: 10px;">✅ Create Writer</button>
+            </div>
+            <div id="user-message"></div>
+          </form>
+        </div>
+
+        <h3>📋 All Users</h3>
+        <div style="overflow-x: auto;">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-list">
+              <tr><td colspan="5" style="text-align: center; color: #999;">Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content">
+      <div class="section">
+        <h2>⚙️ System Settings</h2>
+        
+        <div style="background: #f5f7ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h3>📊 System Information</h3>
+          <p><strong>Server:</strong> http://localhost:3000</p>
+          <p><strong>API URL:</strong> http://localhost:3000/api</p>
+          <p><strong>Public URL:</strong> http://localhost:3000/index.html</p>
+          <p><strong>Login URL:</strong> http://localhost:3000/login.html</p>
+        </div>
+
+        <div style="background: #fff9e6; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107;">
+          <h3>🔐 Security Notes</h3>
+          <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>Change default admin password in production</li>
+            <li>Use HTTPS in production environment</li>
+            <li>Set JWT_SECRET environment variable</li>
+            <li>Regularly update and backup user accounts</li>
+            <li>Monitor lesson creation and modifications</li>
+          </ul>
+        </div>
+
+        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; border-left: 4px solid #4caf50;">
+          <h3>📝 Role Permissions Summary</h3>
+          <table style="width: 100%; margin-top: 10px;">
+            <tr style="background: #f5f5f5;">
+              <th style="padding: 10px; text-align: left;">Action</th>
+              <th style="padding: 10px;">Admin</th>
+              <th style="padding: 10px;">Writer</th>
+              <th style="padding: 10px;">Public</th>
+            </tr>
+            <tr>
+              <td style="padding: 10px;">View Lessons</td>
+              <td style="padding: 10px;">✅</td>
+              <td style="padding: 10px;">✅</td>
+              <td style="padding: 10px;">✅</td>
+            </tr>
+            <tr style="background: #fafafa;">
+              <td style="padding: 10px;">Create Lesson</td>
+              <td style="padding: 10px;">✅</td>
+              <td style="padding: 10px;">✅</td>
+              <td style="padding: 10px;">❌</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px;">Edit Own Lesson</td>
+              <td style="padding: 10px;">✅</td>
+              <td style="padding: 10px;">✅</td>
+              <td style="padding: 10px;">❌</td>
+            </tr>
+            <tr style="background: #fafafa;">
+              <td style="padding: 10px;">Edit Any Lesson</td>
+              <td style="padding: 10px;">✅</td>
+              <td style="padding: 10px;">❌</td>
+              <td style="padding: 10px;">❌</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px;">Manage Users</td>
+              <td style="padding: 10px;">✅</td>
+              <td style="padding: 10px;">❌</td>
+              <td style="padding: 10px;">❌</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal('edit-modal')">×</button>
+      <h2>Edit User</h2>
+      <form id="edit-user-form">
+        <div class="form-group">
+          <label for="edit-username">Username (read-only)</label>
+          <input type="text" id="edit-username" readonly style="background: #f5f5f5;">
+        </div>
+        <div class="form-group">
+          <label for="edit-email">Email</label>
+          <input type="email" id="edit-email" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-password">New Password (leave empty to keep)</label>
+          <input type="password" id="edit-password" placeholder="Enter new password or leave blank">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">💾 Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    let allLessons = [];
+    let allUsers = [];
+    let currentEditingUser = null;
+
+    // Initialize
+    init();
+
+    async function init() {
+      // Check authentication
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+
+      if (!token || !user) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const userData = JSON.parse(user);
+      if (userData.role !== 'admin') {
+        window.location.href = '/editor.html';
+        return;
+      }
+
+      document.getElementById('username').textContent = userData.username;
+
+      // Load data
+      await loadLessons();
+      await loadUsers();
+
+      // Setup event listeners
+      document.getElementById('create-user-form').addEventListener('submit', handleCreateUser);
+      document.getElementById('edit-user-form').addEventListener('submit', handleEditUser);
+    }
+
+    async function loadLessons() {
+      try {
+        const response = await fetch(`${API_URL}/admin/lessons`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to load lessons');
+
+        allLessons = await response.json();
+        updateStats();
+        renderLessons();
+      } catch (err) {
+        console.error('Error loading lessons:', err);
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await fetch(`${API_URL}/admin/users`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to load users');
+
+        allUsers = await response.json();
+        updateStats();
+        renderUsers();
+      } catch (err) {
+        console.error('Error loading users:', err);
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('lesson-count').textContent = allLessons.length;
+      document.getElementById('user-count').textContent = allUsers.length;
+      document.getElementById('writer-count').textContent = allUsers.filter(u => u.role === 'writer').length;
+    }
+
+    function renderLessons() {
+      const container = document.getElementById('lessons-list');
+
+      if (allLessons.length === 0) {
+        container.innerHTML = '<p style="color: #999;">No lessons yet</p>';
+        return;
+      }
+
+      container.innerHTML = allLessons
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .map(lesson => `
+          <div style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <h4 style="margin: 0 0 5px 0;">${escapeHtml(lesson.title)}</h4>
+                <p style="margin: 3px 0; font-size: 13px; color: #666;">
+                  By <strong>${escapeHtml(lesson.createdBy || 'Unknown')}</strong> on ${lesson.date}
+                </p>
+                <p style="margin: 3px 0; font-size: 13px; color: #999;">
+                  ${lesson.category} • ${new Date(lesson.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+              <button class="delete-btn" onclick="deleteLesson('${lesson.id}')">🗑️ Delete</button>
+            </div>
+          </div>
+        `).join('');
+    }
+
+    function renderUsers() {
+      const container = document.getElementById('users-list');
+
+      if (allUsers.length === 0) {
+        container.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">No users</td></tr>';
+        return;
+      }
+
+      container.innerHTML = allUsers.map(user => `
+        <tr>
+          <td><strong>${escapeHtml(user.username)}</strong></td>
+          <td>${escapeHtml(user.email)}</td>
+          <td><span class="role-badge role-${user.role}">${user.role.toUpperCase()}</span></td>
+          <td>${user.createdAt.split('T')[0]}</td>
+          <td>
+            <button class="action-btn edit-btn" onclick="openEditModal('${user.id}', '${escapeHtml(user.username)}', '${escapeHtml(user.email)}')">✏️ Edit</button>
+            ${user.role !== 'admin' ? `<button class="action-btn delete-btn" onclick="deleteUser('${user.id}')">🗑️ Delete</button>` : '<span style="color: #999;">Admin (Protected)</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function handleCreateUser(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('new-username').value.trim();
+      const email = document.getElementById('new-email').value.trim();
+      const password = document.getElementById('new-password').value;
+
+      try {
+        const response = await fetch(`${API_URL}/admin/users`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ username, email, password })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error);
+        }
+
+        showMessage('✅ Writer account created successfully!', 'success', 'user-message');
+        document.getElementById('create-user-form').reset();
+        await loadUsers();
+      } catch (err) {
+        showMessage(`❌ Error: ${err.message}`, 'error', 'user-message');
+      }
+    }
+
+    function openEditModal(userId, username, email) {
+      currentEditingUser = userId;
+      document.getElementById('edit-username').value = username;
+      document.getElementById('edit-email').value = email;
+      document.getElementById('edit-password').value = '';
+      document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    async function handleEditUser(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('edit-email').value.trim();
+      const password = document.getElementById('edit-password').value;
+
+      try {
+        const body = { email };
+        if (password) body.password = password;
+
+        const response = await fetch(`${API_URL}/admin/users/${currentEditingUser}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error);
+        }
+
+        closeModal('edit-modal');
+        await loadUsers();
+        showMessage('✅ User updated successfully!', 'success', 'user-message');
+      } catch (err) {
+        showMessage(`❌ Error: ${err.message}`, 'error', 'user-message');
+      }
+    }
+
+    async function deleteUser(userId) {
+      if (!confirm('Are you sure? This cannot be undone.')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to delete user');
+
+        await loadUsers();
+        showMessage('🗑️ User deleted', 'success', 'user-message');
+      } catch (err) {
+        showMessage(`❌ Error: ${err.message}`, 'error', 'user-message');
+      }
+    }
+
+    async function deleteLesson(lessonId) {
+      if (!confirm('Are you sure? This cannot be undone.')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/lessons/${lessonId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to delete lesson');
+
+        await loadLessons();
+        showMessage('🗑️ Lesson deleted', 'success', 'lesson-message');
+      } catch (err) {
+        showMessage(`❌ Error: ${err.message}`, 'error', 'lesson-message');
+      }
+    }
+
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login.html';
+      }
+    }
+
+    function showMessage(message, type, elementId) {
+      const elem = document.getElementById(elementId);
+      elem.innerHTML = `<div class="${type}-message">${message}</div>`;
+      setTimeout(() => { elem.innerHTML = ''; }, 5000);
+    }
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('edit-modal');
+      if (event.target === modal) {
+        closeModal('edit-modal');
+      }
+    }
+  </script>
+</body>
+</html>
