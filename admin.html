@@ -1,327 +1,1000 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HIM YOUTH — Admin Panel</title>
-<link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="admin-style.css">
-<style>
-  .admin-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🔐 HIM YOUTH THAILAND — Admin Panel (Retro Vinyl Edition)</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Krub:wght@400;500;600;700&family=Pridi:wght@400;600;700&family=Righteous&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      /* Vintage 70s-80s Retro Groove & Warm Vinyl Palette */
+      --retro-bg: #f5eedc;
+      --retro-bg-surface: #fff8eb;
+      --retro-bg-card: #fdf5e6;
+      --retro-border: #2c221e;
+      /* Nostalgic Accent Striping */
+      --retro-mustard: #e5a93b;
+      --retro-burnt-orange: #d95d39;
+      --retro-rust: #b84328;
+      --retro-avocado-green: #597d5e;
+      --retro-teal: #2f7678;
+      --retro-cream: #faf3e0;
+      /* Retro Ink & Text */
+      --retro-ink-dark: #241c18;
+      --retro-ink-muted: #6e5c54;
+      /* Hard Vintage Shadows */
+      --retro-shadow: 4px 4px 0px var(--retro-border);
+      --retro-shadow-deep: 6px 6px 0px var(--retro-border);
+      --retro-shadow-lg: 8px 8px 0px var(--retro-border);
+    }
 
-  .admin-tabs button {
-    padding: 12px 20px;
-    border: none;
-    background: none;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    color: #666;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s;
-  }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  .admin-tabs button.active {
-    color: #667eea;
-    border-bottom-color: #667eea;
-  }
+    body {
+      background-color: var(--retro-bg);
+      background-image: radial-gradient(#d3c6ab 1.2px, transparent 1.2px), linear-gradient(to right, rgba(229, 169, 59, 0.06) 1px, transparent 1px);
+      background-size: 18px 18px, 36px 36px;
+      color: var(--retro-ink-dark);
+      font-family: 'Krub', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
 
-  .admin-tabs button:hover {
-    color: #333;
-  }
+    /* Retro Rainbow Top Accent */
+    .retro-rainbow-bar {
+      display: flex;
+      height: 8px;
+      width: 100%;
+    }
 
-  .tab-content {
-    display: none;
-  }
+    .retro-rainbow-bar span:nth-child(1) {
+      background: var(--retro-mustard);
+      flex: 1;
+    }
 
-  .tab-content.active {
-    display: block;
-  }
+    .retro-rainbow-bar span:nth-child(2) {
+      background: var(--retro-burnt-orange);
+      flex: 1;
+    }
 
-  .user-card {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-  }
+    .retro-rainbow-bar span:nth-child(3) {
+      background: var(--retro-rust);
+      flex: 1;
+    }
 
-  .user-info {
-    flex: 1;
-  }
+    .retro-rainbow-bar span:nth-child(4) {
+      background: var(--retro-teal);
+      flex: 1;
+    }
 
-  .user-info h4 {
-    margin: 0 0 4px 0;
-    color: #333;
-  }
+    .retro-rainbow-bar span:nth-child(5) {
+      background: var(--retro-avocado-green);
+      flex: 1;
+    }
 
-  .user-info p {
-    margin: 4px 0;
-    color: #666;
-    font-size: 0.9rem;
-  }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+    }
 
-  .user-role {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    background: #f0f0f0;
-    color: #333;
-  }
+    /* Header - Retro Deck */
+    .admin-header {
+      background: var(--retro-bg-surface);
+      border: 3px solid var(--retro-border);
+      border-radius: 12px;
+      box-shadow: var(--retro-shadow-deep);
+      margin-top: 28px;
+      padding: 28px 32px;
+      position: relative;
+      overflow: hidden;
+    }
 
-  .user-role.admin {
-    background: #ffe0e0;
-    color: #c33;
-  }
+    .admin-header::after {
+      content: "";
+      position: absolute;
+      right: -25px;
+      bottom: -25px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 6px dashed var(--retro-mustard);
+      opacity: 0.25;
+      pointer-events: none;
+    }
 
-  .user-role.writer {
-    background: #e0e8ff;
-    color: #0033cc;
-  }
+    .header-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
 
-  .user-actions {
-    display: flex;
-    gap: 8px;
-  }
+    .brand-badge {
+      display: inline-block;
+      font-family: 'Righteous', 'Pridi', cursive;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--retro-cream);
+      background: var(--retro-burnt-orange);
+      padding: 3px 10px;
+      border: 1.5px solid var(--retro-border);
+      box-shadow: 2px 2px 0px var(--retro-border);
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
 
-  .user-card.form-container {
-    background: #f9f9f9;
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 20px;
-  }
+    .admin-header h1 {
+      font-family: 'Righteous', 'Pridi', sans-serif;
+      font-size: 1.95rem;
+      color: var(--retro-ink-dark);
+      text-shadow: 2px 2px 0px var(--retro-mustard);
+      margin: 0;
+      line-height: 1.25;
+    }
 
-  .form-group {
-    margin-bottom: 15px;
-  }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
-  .form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #333;
-  }
+    .admin-user-pill {
+      background: var(--retro-bg-card);
+      border: 2px solid var(--retro-border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.88rem;
+      font-family: 'Space Mono', monospace;
+      color: var(--retro-ink-dark);
+      box-shadow: 2px 2px 0px var(--retro-border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-  .form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 0.95rem;
-  }
+    .btn {
+      padding: 9px 18px;
+      border: 2px solid var(--retro-border);
+      border-radius: 8px;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      font-size: 0.92rem;
+      text-decoration: none;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 3px 3px 0px var(--retro-border);
+    }
 
-  .form-group input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px var(--retro-border);
+    }
 
-  .user-form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-  }
+    .btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
 
-  .header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
+    .btn-primary {
+      background: var(--retro-burnt-orange);
+      color: #ffffff;
+    }
 
-  .logout-btn {
-    background: #c33;
-    color: white;
-  }
+    .btn-primary:hover {
+      background: #e26945;
+    }
 
-  .logout-btn:hover {
-    background: #a22;
-  }
+    .btn-secondary {
+      background: var(--retro-teal);
+      color: #ffffff;
+    }
 
-  .auth-message {
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
-  }
+    .btn-secondary:hover {
+      background: #388a8c;
+    }
 
-  .auth-message.info {
-    background: #e3f2fd;
-    color: #1565c0;
-    border-left: 4px solid #1565c0;
-  }
+    .logout-btn {
+      background: var(--retro-rust);
+      color: #ffffff;
+    }
 
-  .users-list {
-    margin-top: 20px;
-  }
+    .logout-btn:hover {
+      background: #c94d31;
+    }
 
-  .users-toolbar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
+    /* Admin Main Container */
+    .admin-main {
+      margin-top: 24px;
+      margin-bottom: 60px;
+    }
 
-  .users-toolbar input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+    /* Retro Capsule Tabs */
+    .admin-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 3px double var(--retro-mustard);
+      padding-bottom: 14px;
+    }
 
-  .empty-state {
-    text-align: center;
-    padding: 30px;
-    color: #999;
-  }
+    .admin-tabs button {
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-size: 1.05rem;
+      color: var(--retro-ink-dark);
+      background: var(--retro-bg-surface);
+      border: 2.5px solid var(--retro-border);
+      border-radius: 24px;
+      padding: 8px 22px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      box-shadow: 3px 3px 0px var(--retro-border);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-  .lesson-card-creator {
-    font-size: 0.85rem;
-    color: #888;
-    margin: 8px 0 0 0;
-    font-style: italic;
-  }
-</style>
+    .admin-tabs button:hover {
+      background: var(--retro-teal);
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 0px var(--retro-border);
+    }
+
+    .admin-tabs button.active {
+      background: var(--retro-mustard);
+      color: var(--retro-ink-dark);
+      box-shadow: 4px 4px 0px var(--retro-border);
+      transform: translateY(-2px);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Panels (Cassette Box Styling) */
+    .panel {
+      background: var(--retro-bg-surface);
+      border: 3px solid var(--retro-border);
+      border-radius: 12px;
+      box-shadow: var(--retro-shadow-deep);
+      padding: 30px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .panel h2 {
+      font-family: 'Righteous', 'Pridi', sans-serif;
+      font-size: 1.55rem;
+      color: var(--retro-ink-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 3px solid var(--retro-border);
+      padding-bottom: 10px;
+    }
+
+    /* Real-time & Info Notice Banner */
+    .notice-banner {
+      background: #eef7ee;
+      border: 2px solid var(--retro-border);
+      border-left: 6px solid var(--retro-avocado-green);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 22px;
+      color: var(--retro-ink-dark);
+      font-size: 0.94rem;
+      box-shadow: 2px 2px 0px var(--retro-border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .auth-message.info {
+      background: var(--retro-bg-card);
+      border: 2px solid var(--retro-border);
+      border-left: 6px solid var(--retro-teal);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 22px;
+      color: var(--retro-ink-dark);
+      font-size: 0.92rem;
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
+
+    /* Forms */
+    .form-row,
+    .user-form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 650px) {
+
+      .form-row,
+      .user-form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--retro-ink-dark);
+      font-size: 0.94rem;
+      letter-spacing: 0.02em;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .search-input {
+      width: 100%;
+      padding: 11px 14px;
+      background: #ffffff;
+      border: 2.5px solid var(--retro-border);
+      border-radius: 8px;
+      font-size: 0.96rem;
+      font-family: 'Krub', sans-serif;
+      color: var(--retro-ink-dark);
+      box-shadow: var(--retro-shadow);
+      transition: all 0.18s ease;
+      outline: none;
+    }
+
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .search-input:focus {
+      border-color: var(--retro-burnt-orange);
+      box-shadow: 5px 5px 0px var(--retro-mustard);
+      transform: translate(-1px, -1px);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* Search & Toolbar */
+    .lessons-toolbar,
+    .users-toolbar {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    /* Retro User & Lesson Cards */
+    .user-card,
+    .admin-lesson-item {
+      background: var(--retro-bg-surface);
+      border: 2.5px solid var(--retro-border);
+      border-radius: 10px;
+      box-shadow: var(--retro-shadow);
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .user-card::before,
+    .admin-lesson-item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 6px;
+      background: var(--retro-burnt-orange);
+    }
+
+    .user-card:nth-child(2n)::before,
+    .admin-lesson-item:nth-child(2n)::before {
+      background: var(--retro-teal);
+    }
+
+    .user-card:nth-child(3n)::before,
+    .admin-lesson-item:nth-child(3n)::before {
+      background: var(--retro-avocado-green);
+    }
+
+    .user-card:hover,
+    .admin-lesson-item:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--retro-border);
+      background: #ffffff;
+    }
+
+    .user-info h4 {
+      margin: 0 0 6px 0;
+      font-family: 'Pridi', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--retro-ink-dark);
+    }
+
+    .user-info p {
+      margin: 4px 0;
+      color: var(--retro-ink-muted);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-role {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-family: 'Righteous', 'Space Mono', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border: 1.5px solid var(--retro-border);
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
+
+    .user-role.admin {
+      background: var(--retro-rust);
+      color: #ffffff;
+    }
+
+    .user-role.writer {
+      background: var(--retro-teal);
+      color: #ffffff;
+    }
+
+    .user-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .user-actions button,
+    .admin-lesson-item button {
+      padding: 7px 14px;
+      border: 2px solid var(--retro-border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.18s ease;
+      box-shadow: 2px 2px 0px var(--retro-border);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .user-actions button:hover,
+    .admin-lesson-item button:hover {
+      transform: translate(-1.5px, -1.5px);
+      box-shadow: 3.5px 3.5px 0px var(--retro-border);
+    }
+
+    .btn-edit-sm {
+      background: var(--retro-mustard);
+      color: var(--retro-ink-dark);
+    }
+
+    .btn-delete-sm {
+      background: var(--retro-rust);
+      color: #ffffff;
+    }
+
+    .user-card.form-container {
+      background: var(--retro-bg-card);
+      flex-direction: column;
+      align-items: stretch;
+      margin-bottom: 20px;
+      border-style: solid;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      background: var(--retro-bg-card);
+      border: 2px dashed var(--retro-border);
+      border-radius: 8px;
+      color: var(--retro-ink-muted);
+      font-size: 0.96rem;
+    }
+
+    .lesson-card-creator {
+      font-size: 0.84rem;
+      font-family: 'Space Mono', monospace;
+      color: var(--retro-ink-muted);
+      margin-top: 6px;
+    }
+
+    /* Footer */
+    .admin-footer {
+      background: var(--retro-border);
+      color: #dfd4c5;
+      border-top: 4px solid var(--retro-mustard);
+      font-size: 0.9rem;
+      padding: 24px 0;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+
+      .user-card,
+      .admin-lesson-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .user-actions {
+        width: 100%;
+        margin-top: 10px;
+        justify-content: flex-end;
+      }
+    }
+
+    #lessons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    /* กล่องการ์ดบทเรียน Retro Vinyl Sleeve Card */
+    .lesson-card {
+      background: var(--retro-bg-surface, #fff8eb);
+      border: 2.5px solid var(--retro-border, #2c221e);
+      border-left: 8px solid var(--retro-teal, #2f7678);
+      border-radius: 10px;
+      box-shadow: 4px 4px 0px var(--retro-border, #2c221e);
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* สลับสีขอบด้านซ้ายของการ์ดแต่ละใบ */
+    .lesson-card:nth-child(2n) {
+      border-left-color: var(--retro-burnt-orange, #d95d39);
+    }
+
+    .lesson-card:nth-child(3n) {
+      border-left-color: var(--retro-avocado-green, #597d5e);
+    }
+
+    .lesson-card:nth-child(4n) {
+      border-left-color: var(--retro-mustard, #e5a93b);
+    }
+
+    .lesson-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--retro-border, #2c221e);
+      background: #ffffff;
+    }
+
+    /* ส่วนหัวการ์ด (Meta + ปุ่ม Action) */
+    .lesson-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .lesson-card-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--retro-ink-muted, #6e5c54);
+    }
+
+    .lesson-card-meta .cat {
+      background: var(--retro-cream, #faf3e0);
+      border: 1.5px solid var(--retro-border, #2c221e);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-weight: 700;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      color: var(--retro-ink-dark, #241c18);
+      box-shadow: 2px 2px 0px var(--retro-mustard, #e5a93b);
+      font-size: 0.78rem;
+    }
+
+    .lesson-card-id code {
+      background: #2c221e;
+      color: #fff8eb;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.76rem;
+    }
+
+    /* ส่วนเนื้อหาในการ์ด */
+    .lesson-card-body .lesson-title {
+      font-family: 'Pridi', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--retro-ink-dark, #241c18);
+      margin: 0 0 6px 0;
+      line-height: 1.4;
+    }
+
+    .lesson-card-excerpt {
+      font-size: 0.92rem;
+      color: var(--retro-ink-dark, #241c18);
+      opacity: 0.88;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* ส่วนท้ายการ์ด (ผู้จัดทำ) */
+    .lesson-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1.5px dashed rgba(44, 34, 30, 0.22);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--retro-ink-muted, #6e5c54);
+    }
+
+    .lesson-card-creator {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ปุ่มการทำงาน แก้ไข / ลบ */
+    .lesson-card-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .lesson-card-actions .btn {
+      padding: 6px 14px;
+      border: 2px solid var(--retro-border, #2c221e);
+      border-radius: 6px;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 0px var(--retro-border, #2c221e);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .lesson-card-actions .btn:hover {
+      transform: translate(-1.5px, -1.5px);
+      box-shadow: 3.5px 3.5px 0px var(--retro-border, #2c221e);
+    }
+
+    .lesson-card-actions .btn-edit,
+    .lesson-card-actions .btn-secondary {
+      background: var(--retro-mustard, #e5a93b);
+      color: var(--retro-ink-dark, #241c18);
+    }
+
+    .lesson-card-actions .btn-delete,
+    .lesson-card-actions .btn-danger {
+      background: var(--retro-rust, #b84328);
+      color: #ffffff;
+    }
+  </style>
 </head>
-<body>
 
-<header class="admin-header">
-  <div class="wrap">
-    <h1>🔐 HIM YOUTH THAILAND — Admin Panel</h1>
-    <div class="header-actions">
-      <span id="user-info" style="color: #666; font-size: 0.95rem;"></span>
-      <button id="logout-btn" class="btn logout-btn">🚪 Logout</button>
-      <a href="index.html" class="btn btn-secondary">👁️ ดูเว็บไซต์</a>
+<body> <!-- Retro Rainbow Striping Accent Header -->
+  <div class="retro-rainbow-bar"> <span></span><span></span><span></span><span></span><span></span> </div>
+  <header class="admin-header wrap">
+    <div class="header-flex">
+      <div>
+        <div class="brand-badge">📻 HIM YOUTH THAILAND // EST. 1978</div>
+        <h1>🔐 Admin Control Panel</h1>
+      </div>
+      <div class="header-actions"> <span id="user-info" class="admin-user-pill">👤 กำลังตรวจสอบสิทธิ์...</span> <a
+          href="index.html" class="btn btn-secondary">👁️ ดูเว็บไซต์ (View Site)</a> <button id="logout-btn"
+          class="btn logout-btn">🚪 ออกจากระบบ (Logout)</button> </div>
     </div>
-  </div>
-</header>
-
-<main class="wrap admin-main">
-
-  <div class="admin-tabs">
-    <button class="tab-btn active" data-tab="lessons">📚 จัดการบทเรียน</button>
-    <button class="tab-btn" data-tab="users">👥 จัดการผู้ใช้</button>
-  </div>
-
-  <!-- TAB 1: LESSONS MANAGEMENT -->
-  <div id="lessons-tab" class="tab-content active">
-    <section class="panel">
-      <div style="background: #e8f5e9; padding: 12px; border-radius: 4px; margin-bottom: 20px; color: #2d7a3e; font-size: 0.95rem;">
-        ✅ <strong>ทำงานแบบ Real-time</strong> — บทเรียนที่บันทึกจะแสดงบน index.html ทันที (ไม่ต้อง Export หรือ Reload)
-      </div>
-      <h2>สร้างบทเรียนใหม่</h2>
-      <form id="lesson-form" class="lesson-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="lesson-title">ชื่อบทเรียน:</label>
-            <input type="text" id="lesson-title" placeholder="เช่น ผู้นำที่รับใช้" required>
-          </div>
-
-          <div class="form-group">
-            <label for="lesson-category">หมวดหมู่:</label>
-            <input type="text" id="lesson-category" placeholder="เช่น การเป็นผู้นำ" list="categories" required>
-            <datalist id="categories"></datalist>
-          </div>
+  </header>
+  <main class="wrap admin-main"> <!-- Retro Tab Selector -->
+    <div class="admin-tabs"> <button class="tab-btn active" data-tab="lessons">📚 จัดการบทเรียน (Lessons)</button>
+      <button class="tab-btn" data-tab="users">👥 จัดการผู้ใช้ (Users)</button>
+    </div>
+    <!-- TAB 1: LESSONS MANAGEMENT -->
+    <div id="lessons-tab" class="tab-content active">
+      <section class="panel">
+        <div class="notice-banner"> <span>⚡</span>
+          <div> <strong>ทำงานแบบ Real-time:</strong> บทเรียนที่บันทึกจะแสดงบนหน้า <code>index.html</code> ทันที </div>
         </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="lesson-date">วันที่:</label>
-            <input type="date" id="lesson-date" required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="lesson-excerpt">สรุปสั้น ๆ:</label>
-          <input type="text" id="lesson-excerpt" placeholder="บรรยายสั้น ๆ เกี่ยวกับบทเรียน" required>
-        </div>
-
-        <div class="form-group">
-          <label for="lesson-content">เนื้อหาบทเรียน (Markdown):</label>
-          <textarea id="lesson-content" placeholder="# ชื่อหัวข้อ&#10;&#10;เนื้อหาของบทเรียน...&#10;&#10;## หัวข้อย่อย&#10;&#10;- จุดสำคัญที่ 1&#10;- จุดสำคัญที่ 2" required></textarea>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">💾 บันทึกบทเรียน</button>
-          <button type="reset" class="btn btn-secondary">🔄 ล้างฟอร์ม</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="panel">
-      <h2>บทเรียนทั้งหมด</h2>
-      <div class="lessons-toolbar">
-        <input type="search" id="search-lessons" placeholder="ค้นหาบทเรียน..." class="search-input">
-      </div>
-      <div id="lessons-list" class="lessons-list"></div>
-      <p id="empty-lessons" class="empty-state" hidden>ยังไม่มีบทเรียน ให้สร้างบทเรียนใหม่ข้างบนก่อน</p>
-    </section>
-  </div>
-
-  <!-- TAB 2: USER MANAGEMENT -->
-  <div id="users-tab" class="tab-content">
-    <section class="panel">
-      <div class="auth-message info">
-        ℹ️ ใช้แบบฟอร์มนี้เพื่อสร้าง Writer หรือแก้ไขรายละเอียดผู้ใช้
-      </div>
-
-      <h2>สร้างผู้ใช้ใหม่</h2>
-      <div class="user-card form-container">
-        <form id="user-form">
-          <div class="user-form-row">
-            <div class="form-group">
-              <label for="new-username">Username:</label>
-              <input type="text" id="new-username" placeholder="เช่น john_writer" required>
-            </div>
-            <div class="form-group">
-              <label for="new-email">Email:</label>
-              <input type="email" id="new-email" placeholder="john@example.com" required>
+        <h2>✍️ สร้างบทเรียนใหม่ (Create New Lesson)</h2>
+        <form id="lesson-form" class="lesson-form">
+          <div class="form-row">
+            <div class="form-group"> <label for="lesson-title">ชื่อบทเรียน (Lesson Title):</label> <input type="text"
+                id="lesson-title" placeholder="เช่น ผู้นำที่รับใช้ด้วยใจถ่อม" required> </div>
+            <div class="form-group"> <label for="lesson-category">หมวดหมู่ (Category):</label> <input type="text"
+                id="lesson-category" placeholder="เช่น การเป็นผู้นำ, ชีวิตฝ่ายวิญญาณ" list="categories" required>
+              <datalist id="categories">
+                <option value="ชีวิตฝ่ายวิญญาณ">
+                <option value="การเป็นผู้นำ">
+                <option value="คำสอนพระคัมภีร์">
+                <option value="การสร้างสาวก">
+              </datalist>
             </div>
           </div>
-
-          <div class="form-group">
-            <label for="new-password">รหัสผ่าน:</label>
-            <input type="password" id="new-password" placeholder="อย่างน้อย 6 ตัวอักษร" required>
+          <div class="form-row">
+            <div class="form-group"> <label for="lesson-date">วันที่เผยแพร่ (Date):</label> <input type="date"
+                id="lesson-date" required> </div>
           </div>
-
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">➕ สร้าง Writer Account</button>
-            <button type="reset" class="btn btn-secondary">🔄 ล้างฟอร์ม</button>
+          <div class="form-group"> <label for="lesson-excerpt">สรุปสั้น ๆ (Excerpt):</label> <input type="text"
+              id="lesson-excerpt" placeholder="บรรยายสั้น ๆ สรุปใจความสำคัญของบทเรียน" required> </div>
+          <div class="form-group"> <label for="lesson-content">เนื้อหาบทเรียน (Lesson Content - Markdown):</label>
+            <textarea id="lesson-content"
+              placeholder="# ชื่อหัวข้อหลัก&#10;&#10;เนื้อหาของบทเรียน...&#10;&#10;## หัวข้อย่อย&#10;&#10;- จุดสำคัญที่ 1&#10;- จุดสำคัญที่ 2"
+              required></textarea>
           </div>
+          <div class="form-actions"> <button type="submit" class="btn btn-primary">💾 บันทึกบทเรียน (Publish
+              Lesson)</button> <button type="reset" class="btn btn-secondary"
+              style="background: var(--retro-cream); color: var(--retro-ink-dark);">🔄 ล้างฟอร์ม (Reset)</button> </div>
         </form>
-      </div>
-    </section>
+      </section>
+      <section class="panel">
+        <!-- Header Deck with Analog Status -->
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-bottom: 12px; margin-bottom: 12px;">
+          <h2 style="border-bottom: none; margin-bottom: 0; padding-bottom: 0;">📚 คลังบทเรียนทั้งหมด (Archive Master
+            Deck)</h2>
+        </div>
 
-    <section class="panel">
-      <h2>รายชื่อผู้ใช้ทั้งหมด</h2>
-      <div class="users-toolbar">
-        <input type="search" id="search-users" placeholder="ค้นหาผู้ใช้..." class="search-input">
-      </div>
-      <div id="users-list" class="users-list"></div>
-      <p id="empty-users" class="empty-state" hidden>ยังไม่มีผู้ใช้</p>
-    </section>
-  </div>
+        <!-- Search & Filter Genre -->
+        <div class="lessons-toolbar" style="margin-bottom: 20px;">
+          <div style="position: relative; margin-bottom: 14px;">
+            <input type="search" id="search-lessons" placeholder="🔍 ค้นหาบทเรียนในคลังตามชื่อ หมวดหมู่ หรือเนื้อหา..."
+              class="search-input" style="padding: 12px 16px; background: #ffffff;">
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          </div>
+        </div>
 
-</main>
+        <!-- Lesson Cards Archive -->
+        <div id="lessons-list" class="lessons-list">
 
-<footer class="admin-footer">
-  <div class="wrap">
-    <p>Admin Panel — จัดการบทเรียนและผู้ใช้</p>
-  </div>
-</footer>
+          <!-- CARD 1 -->
+          <div class="admin-lesson-item"
+            style="border-left: 8px solid var(--retro-teal); background: #ffffff; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; align-items: stretch; border-radius: 10px; margin-bottom: 18px; border: 2.5px solid var(--retro-border); border-left: 8px solid var(--retro-teal); box-shadow: var(--retro-shadow);">
+            <div
+              style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span
+                  style="font-family: 'Space Mono', monospace; font-size: 0.74rem; font-weight: 700; background: var(--retro-border); color: var(--retro-cream); padding: 2px 8px; border-radius: 4px;">SIDE
+                  A · TRACK 01</span>
+                <span class="user-role writer"
+                  style="font-size: 0.74rem; background: var(--retro-teal); color: #ffffff;">ชีวิตฝ่ายวิญญาณ</span>
+                <span
+                  style="font-family: 'Space Mono', monospace; font-size: 0.74rem; background: #ecfdf5; color: var(--retro-avocado-green); border: 1px solid var(--retro-avocado-green); padding: 2px 8px; border-radius: 4px; font-weight: 700;">●
+                  PUBLISHED</span>
+              </div>
+              <div class="user-actions" style="display: flex; gap: 8px;">
+                <button class="btn-edit-sm" title="ดูตัวอย่างบทเรียน"
+                  style="background: var(--retro-cream); color: var(--retro-ink-dark);">👁️ ดูตัวอย่าง</button>
+                <button class="btn-edit-sm" title="แก้ไขบทเรียน">✏️ แก้ไข</button>
+                <button class="btn-delete-sm" title="ลบบทเรียน">🗑️ ลบ</button>
+              </div>
+            </div>
+            <div>
+              <h4
+                style="font-family: 'Pridi', serif; font-size: 1.32rem; font-weight: 700; color: var(--retro-ink-dark); margin: 0 0 6px 0; line-height: 1.4;">
+                การสร้างวินัยฝ่ายวิญญาณ: การเฝ้าเดี่ยวและการอธิษฐานประจำวัน</h4>
+              <p
+                style="font-size: 0.92rem; color: var(--retro-ink-dark); margin: 0 0 10px 0; opacity: 0.88; line-height: 1.5;">
+                แนวทางและเคล็ดลับเชิงปฏิบัติสำหรับการจัดเวลาพบพระเจ้าส่วนตัวอย่างสม่ำเสมอ พร้อมโครงร่างอธิษฐานแบบ ACTS
+                และการบันทึกสมุดฝ่ายวิญญาณ (Spiritual Journaling)</p>
+            </div>
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 10px; border-top: 1.5px dashed rgba(44,34,30,0.25); font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--retro-ink-muted);">
+              <div>📅 2025-05-14 · ⏱️ 6 นาทีอ่าน</div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>ผู้จัดทำ:</span>
+                <span
+                  style="background: var(--retro-bg-card); border: 1.5px solid var(--retro-border); padding: 2px 8px; border-radius: 4px; font-weight: 700; color: var(--retro-ink-dark);">👤
+                  admin</span>
+              </div>
+            </div>
+          </div>
 
-<script src="admin-new.js"></script>
+          <!-- CARD 2 -->
+          <div class="admin-lesson-item"
+            style="border-left: 8px solid var(--retro-burnt-orange); background: #ffffff; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; align-items: stretch; border-radius: 10px; margin-bottom: 18px; border: 2.5px solid var(--retro-border); border-left: 8px solid var(--retro-burnt-orange); box-shadow: var(--retro-shadow);">
+            <div
+              style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span
+                  style="font-family: 'Space Mono', monospace; font-size: 0.74rem; font-weight: 700; background: var(--retro-border); color: var(--retro-cream); padding: 2px 8px; border-radius: 4px;">SIDE
+                  A · TRACK 02</span>
+                <span class="user-role admin"
+                  style="font-size: 0.74rem; background: var(--retro-burnt-orange); color: #ffffff;">การเป็นผู้นำ</span>
+                <span
+                  style="font-family: 'Space Mono', monospace; font-size: 0.74rem; background: #ecfdf5; color: var(--retro-avocado-green); border: 1px solid var(--retro-avocado-green); padding: 2px 8px; border-radius: 4px; font-weight: 700;">●
+                  PUBLISHED</span>
+              </div>
+              <div class="user-actions" style="display: flex; gap: 8px;">
+                <button class="btn-edit-sm" title="ดูตัวอย่างบทเรียน"
+                  style="background: var(--retro-cream); color: var(--retro-ink-dark);">👁️ ดูตัวอย่าง</button>
+                <button class="btn-edit-sm" title="แก้ไขบทเรียน">✏️ แก้ไข</button>
+                <button class="btn-delete-sm" title="ลบบทเรียน">🗑️ ลบ</button>
+              </div>
+            </div>
+            <div>
+              <h4
+                style="font-family: 'Pridi', serif; font-size: 1.32rem; font-weight: 700; color: var(--retro-ink-dark); margin: 0 0 6px 0; line-height: 1.4;">
+                หลักการเป็นผู้นำกลุ่มเซลล์รุ่นใหม่ (Cell Group Leadership)</h4>
+              <p
+                style="font-size: 0.92rem; color: var(--retro-ink-dark); margin: 0 0 10px 0; opacity: 0.88; line-height: 1.5;">
+                การสร้างบรรยากาศแห่งความไว้วางใจ การนำกลุ่มอภิปรายอย่างมีชีวิตชีวา และวิธีรับฟังน้อง ๆ
+                สมาชิกอย่างเข้าใจลึกซึ้ง ท่ามกลางความท้าทายยุคปัจจุบัน</p>
+            </div>
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 10px; border-top: 1.5px dashed rgba(44,34,30,0.25); font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--retro-ink-muted);">
+              <div>📅 2025-05-10 · ⏱️ 9 นาทีอ่าน</div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>ผู้จัดทำ:</span>
+                <span
+                  style="background: var(--retro-bg-card); border: 1.5px solid var(--retro-border); padding: 2px 8px; border-radius: 4px; font-weight: 700; color: var(--retro-ink-dark);">👤
+                  writer_paul</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3 -->
+          <div class="admin-lesson-item"
+            style="border-left: 8px solid var(--retro-avocado-green); background: #ffffff; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; align-items: stretch; border-radius: 10px; margin-bottom: 18px; border: 2.5px solid var(--retro-border); border-left: 8px solid var(--retro-avocado-green); box-shadow: var(--retro-shadow);">
+            <div
+              style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span
+                  style="font-family: 'Space Mono', monospace; font-size: 0.74rem; font-weight: 700; background: var(--retro-border); color: var(--retro-cream); padding: 2px 8px; border-radius: 4px;">SIDE
+                  B · TRACK 03</span>
+                <span class="user-role writer"
+                  style="font-size: 0.74rem; background: var(--retro-avocado-green); color: #ffffff;">คำสอนพระคัมภีร์</span>
+                <span
+                  style="font-family: 'Space Mono', monospace; font-size: 0.74rem; background: #ecfdf5; color: var(--retro-avocado-green); border: 1px solid var(--retro-avocado-green); padding: 2px 8px; border-radius: 4px; font-weight: 700;">●
+                  PUBLISHED</span>
+              </div>
+              <div class="user-actions" style="display: flex; gap: 8px;">
+                <button class="btn-edit-sm" title="ดูตัวอย่างบทเรียน"
+                  style="background: var(--retro-cream); color: var(--retro-ink-dark);">👁️ ดูตัวอย่าง</button>
+                <button class="btn-edit-sm" title="แก้ไขบทเรียน">✏️ แก้ไข</button>
+                <button class="btn-delete-sm" title="ลบบทเรียน">🗑️ ลบ</button>
+              </div>
+            </div>
+            <div>
+              <h4
+                style="font-family: 'Pridi', serif; font-size: 1.32rem; font-weight: 700; color: var(--retro-ink-dark); margin: 0 0 6px 0; line-height: 1.4;">
+                บริบทและการนำพระธรรมโรมไปประยุกต์ใช้ในยุคดิจิทัล</h4>
+              <p
+                style="font-size: 0.92rem; color: var(--retro-ink-dark); margin: 0 0 10px 0; opacity: 0.88; line-height: 1.5;">
+                เจาะลึกพระคุณและความชอบธรรมผ่านมุมมองจดหมายฝากของเปาโล
+                และวิธีดำเนินชีวิตที่แยกบริสุทธิ์ท่ามกลางวัฒนธรรมโซเชียลมีเดีย</p>
+            </div>
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 10px; border-top: 1.5px dashed rgba(44,34,30,0.25); font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--retro-ink-muted);">
+              <div>📅 2025-04-28 · ⏱️ 12 นาทีอ่าน</div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span>ผู้จัดทำ:</span>
+                <span
+                  style="background: var(--retro-bg-card); border: 1.5px solid var(--retro-border); padding: 2px 8px; border-radius: 4px; font-weight: 700; color: var(--retro-ink-dark);">👤
+                  admin</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <p id="empty-lessons" class="empty-state" hidden>ยังไม่มีบทเรียน ให้สร้างบทเรียนใหม่ข้างบนก่อน</p>
+      </section>
+    </div> <!-- TAB 2: USER MANAGEMENT -->
+    <div id="users-tab" class="tab-content">
+      <section class="panel">
+        <div class="auth-message info"> ℹ️ <strong>ระบบจัดการผู้ใช้งาน:</strong> ใช้แบบฟอร์มนี้เพื่อสร้าง Writer Account
+          ใหม่ หรือกำหนดสิทธิ์การเข้าถึง </div>
+        <h2>👥 สร้างผู้ใช้ใหม่ (Create User)</h2>
+        <div class="user-card form-container">
+          <form id="user-form">
+            <div class="user-form-row">
+              <div class="form-group"> <label for="new-username">ชื่อผู้ใช้ (Username):</label> <input type="text"
+                  id="new-username" placeholder="เช่น writer_john" required autocomplete="off"> </div>
+              <div class="form-group"> <label for="new-email">อีเมล (Email):</label> <input type="email" id="new-email"
+                  placeholder="john@himyouth.org" required autocomplete="off"> </div>
+            </div>
+            <div class="form-group"> <label for="new-password">รหัสผ่าน (Password):</label> <input type="password"
+                id="new-password" placeholder="อย่างน้อย 6 ตัวอักษร" required autocomplete="new-password"> </div>
+            <div class="form-actions"> <button type="submit" class="btn btn-primary">➕ สร้าง Writer Account</button>
+              <button type="reset" class="btn btn-secondary"
+                style="background: var(--retro-cream); color: var(--retro-ink-dark);">🔄 ล้างฟอร์ม</button>
+            </div>
+          </form>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>📋 รายชื่อผู้ใช้ทั้งหมด (User Directory)</h2>
+        <div class="users-toolbar"> <input type="search" id="search-users"
+            placeholder="🔍 ค้นหาผู้ใช้จากชื่อผู้ใช้หรืออีเมล..." class="search-input"> </div>
+        <div id="users-list" class="users-list"></div>
+        <p id="empty-users" class="empty-state" hidden>ยังไม่มีผู้ใช้</p>
+      </section>
+    </div>
+  </main>
+  <footer class="admin-footer">
+    <div class="wrap">
+      <p>HIM YOUTH THAILAND · Admin Control Panel (Retro Vinyl Edition)</p>
+      <p style="margin-top: 4px; font-size: 0.78rem; opacity: 0.7; font-family: 'Space Mono', monospace;">ANALOG GROOVE
+        ARCHIVE // MANAGEMENT DECK</p>
+    </div>
+  </footer>
+  <script> // Tab switching mechanism document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); btn.classList.add('active'); const tab = btn.dataset.tab; const target = document.getElementById(`${tab}-tab`); if (target) target.classList.add('active'); }); }); // Check Authentication & User Profile function checkAdminAuth() { const userStr = localStorage.getItem('user'); const token = localStorage.getItem('token'); const userInfo = document.getElementById('user-info'); const logoutBtn = document.getElementById('logout-btn'); if (userStr && token) { try { const user = JSON.parse(userStr); userInfo.textContent = `👤 ${user.username} (${(user.role || 'ADMIN').toUpperCase()})`; } catch(e) { userInfo.textContent = '👤 Admin (ADMIN)'; } } else { userInfo.textContent = '👤 Admin (ADMIN)'; } if (logoutBtn) { logoutBtn.addEventListener('click', (e) => { e.preventDefault(); if (confirm('คุณต้องการออกจากระบบหรือไม่? (Are you sure you want to logout?)')) { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = 'index.html'; } }); } const dateInput = document.getElementById('lesson-date'); if (dateInput) { dateInput.valueAsDate = new Date(); } } document.addEventListener('DOMContentLoaded', checkAdminAuth); </script>
+  <script src="admin-new.js"></script>
 </body>
+
 </html>

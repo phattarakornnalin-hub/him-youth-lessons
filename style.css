@@ -1,15 +1,31 @@
 :root {
-  --navy-deep: #0f1b2e;
-  --navy-mid: #1c2c47;
-  --gold: #c79a3c;
-  --gold-soft: #e4c77a;
-  --parchment: #f6f1e3;
-  --ink: #241f18;
-  --ink-soft: #5a5140;
-  --sand-line: #ddd0aa;
+  /* Vintage 70s-80s Retro Groove & Warm Vinyl Palette */
+  --retro-bg: #f5eedc;
+  --retro-bg-surface: #fff8eb;
+  --retro-bg-card: #fdf5e6;
+  --retro-border: #2c221e;
+  
+  /* Nostalgic Accent Striping */
+  --retro-mustard: #e5a93b;
+  --retro-burnt-orange: #d95d39;
+  --retro-rust: #b84328;
+  --retro-avocado-green: #597d5e;
+  --retro-teal: #2f7678;
+  --retro-cream: #faf3e0;
+  
+  /* Retro Ink & Text */
+  --retro-ink-dark: #241c18;
+  --retro-ink-muted: #6e5c54;
+  
+  /* Hard Vintage Shadows */
+  --retro-shadow: 4px 4px 0px var(--retro-border);
+  --retro-shadow-deep: 6px 6px 0px var(--retro-border);
+  --retro-shadow-orange: 4px 4px 0px var(--retro-burnt-orange);
 }
 
-* { box-sizing: border-box; }
+* { 
+  box-sizing: border-box; 
+}
 
 html {
   scroll-padding-top: env(safe-area-inset-top, 0px);
@@ -17,243 +33,408 @@ html {
 
 body {
   margin: 0;
-  background: var(--parchment);
-  color: var(--ink);
-  font-family: 'Sarabun', sans-serif;
-  line-height: 1.6;
+  background-color: var(--retro-bg);
+  /* Retro halftones / warm paper grain & subtle striped groovy vibe */
+  background-image: 
+    radial-gradient(#d3c6ab 1px, transparent 1px),
+    linear-gradient(to right, rgba(229, 169, 59, 0.05) 1px, transparent 1px);
+  background-size: 16px 16px, 32px 32px;
+  color: var(--retro-ink-dark);
+  font-family: 'Krub', 'Sarabun', -apple-system, sans-serif;
+  line-height: 1.65;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .wrap {
-  max-width: 760px;
+  max-width: 820px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
+  position: relative;
 }
 
-/* Header */
+/* Retro Rainbow Striping Accent Header */
+.retro-rainbow-bar {
+  display: flex;
+  height: 8px;
+  width: 100%;
+}
+.retro-rainbow-bar span:nth-child(1) { background: var(--retro-mustard); flex: 1; }
+.retro-rainbow-bar span:nth-child(2) { background: var(--retro-burnt-orange); flex: 1; }
+.retro-rainbow-bar span:nth-child(3) { background: var(--retro-rust); flex: 1; }
+.retro-rainbow-bar span:nth-child(4) { background: var(--retro-teal); flex: 1; }
+.retro-rainbow-bar span:nth-child(5) { background: var(--retro-avocado-green); flex: 1; }
+
+/* Header - Vinyl / Cassette Era Banner */
 .site-header {
-  background: var(--navy-deep);
-  color: var(--parchment);
-  border-bottom: 3px solid var(--gold);
-  padding: 40px 0 32px;
+  background: var(--retro-bg-surface);
+  border: 3px solid var(--retro-border);
+  border-radius: 12px;
+  box-shadow: var(--retro-shadow-deep);
+  margin-top: 28px;
+  padding: 36px 32px 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  right: -25px;
+  bottom: -25px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px dashed var(--retro-mustard);
+  opacity: 0.25;
+  pointer-events: none;
 }
 
 .site-header .brand {
   margin: 0 0 10px;
-  font-family: 'Sarabun', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--gold-soft);
+  font-family: 'Righteous', 'Pridi', cursive;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--retro-cream);
+  display: inline-block;
+  background: var(--retro-burnt-orange);
+  padding: 4px 12px;
+  border: 2px solid var(--retro-border);
+  box-shadow: 2px 2px 0px var(--retro-border);
+  border-radius: 4px;
 }
 
 .site-header h1 {
-  margin: 0 0 12px;
-  font-family: 'Noto Serif Thai', serif;
-  font-weight: 700;
-  font-size: 1.9rem;
-  line-height: 1.3;
-  color: #fff;
+  margin: 8px 0 12px;
+  font-family: 'Righteous', 'Pridi', sans-serif;
+  font-size: 2.3rem;
+  line-height: 1.25;
+  color: var(--retro-ink-dark);
+  letter-spacing: 0.02em;
+  text-shadow: 2px 2px 0px var(--retro-mustard);
 }
 
 .site-header .tagline {
   margin: 0;
-  max-width: 56ch;
-  color: #cfd6e3;
-  font-size: 0.98rem;
+  max-width: 58ch;
+  color: var(--retro-ink-muted);
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
-/* Toolbar */
+/* Toolbar - Retro Cassette Deck Style */
 .toolbar {
-  padding: 28px 0 8px;
+  padding: 24px 0 14px;
   position: sticky;
   top: env(safe-area-inset-top, 0px);
-  background: var(--parchment);
-  z-index: 2;
+  background: rgba(245, 238, 220, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+  margin-bottom: 20px;
+  border-bottom: 3px double var(--retro-mustard);
+}
+
+.search-container {
+  position: relative;
 }
 
 #search {
   width: 100%;
-  padding: 11px 14px;
-  font-family: 'Sarabun', sans-serif;
-  font-size: 1rem;
-  border: 1px solid var(--sand-line);
-  border-radius: 3px;
-  background: #fff;
-  color: var(--ink);
+  padding: 13px 18px 13px 44px;
+  font-family: 'Krub', sans-serif;
+  font-size: 1.02rem;
+  font-weight: 600;
+  border: 2.5px solid var(--retro-border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--retro-ink-dark);
+  box-shadow: var(--retro-shadow);
+  transition: all 0.2s ease;
+  outline: none;
 }
 
-#search:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 1px;
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--retro-burnt-orange);
+  font-size: 1.15rem;
+  pointer-events: none;
 }
 
+#search:focus {
+  border-color: var(--retro-burnt-orange);
+  box-shadow: 5px 5px 0px var(--retro-mustard);
+  transform: translate(-1px, -1px);
+}
+
+/* Retro Capsule Badges / Pills */
 .categories {
   margin-top: 14px;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 18px;
+  align-items: center;
+  gap: 8px 10px;
 }
 
 .categories button {
-  font-family: 'Sarabun', sans-serif;
+  font-family: 'Righteous', 'Krub', sans-serif;
   font-size: 0.92rem;
-  color: var(--ink-soft);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  padding: 6px 0;
+  color: var(--retro-ink-dark);
+  background: var(--retro-bg-surface);
+  border: 2px solid var(--retro-border);
+  border-radius: 20px;
+  padding: 6px 16px;
   cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 2px 2px 0px var(--retro-border);
 }
 
 .categories button:hover {
-  color: var(--ink);
+  background: var(--retro-teal);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0px var(--retro-border);
 }
 
 .categories button.active {
-  color: var(--ink);
-  border-bottom-color: var(--gold);
-  font-weight: 600;
+  background: var(--retro-mustard);
+  color: var(--retro-ink-dark);
+  box-shadow: 3px 3px 0px var(--retro-border);
+  font-weight: 700;
+  transform: translateY(-1px);
 }
 
 .categories button:focus-visible,
 .back-link:focus-visible,
 .lesson-list a:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 2px;
+  outline: 2px solid var(--retro-burnt-orange);
+  outline-offset: 3px;
 }
 
-/* Lesson list */
+/* Vintage Article / Lesson Cards */
 .lesson-list {
   list-style: none;
-  margin: 12px 0 60px;
+  margin: 16px 0 60px;
   padding: 0;
-  border-top: 1px solid var(--sand-line);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .lesson-list li {
-  border-bottom: 1px solid var(--sand-line);
+  background: var(--retro-bg-surface);
+  border: 2.5px solid var(--retro-border);
+  border-radius: 10px;
+  box-shadow: var(--retro-shadow);
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.lesson-list li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 8px;
+  background: var(--retro-burnt-orange);
+}
+
+.lesson-list li:nth-child(2n)::before {
+  background: var(--retro-teal);
+}
+
+.lesson-list li:nth-child(3n)::before {
+  background: var(--retro-avocado-green);
+}
+
+.lesson-list li:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px var(--retro-border);
+  background: #fff;
 }
 
 .lesson-list a {
   display: block;
-  padding: 20px 0;
+  padding: 22px 26px 22px 30px;
   text-decoration: none;
   color: inherit;
 }
 
 .lesson-meta {
-  font-size: 0.82rem;
-  color: var(--ink-soft);
-  margin-bottom: 4px;
+  font-size: 0.88rem;
+  color: var(--retro-ink-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .lesson-meta .cat {
-  color: var(--gold);
-  font-weight: 600;
+  background: var(--retro-cream);
+  color: var(--retro-border);
+  font-family: 'Righteous', 'Krub', sans-serif;
+  font-weight: 700;
+  padding: 2px 10px;
+  border: 1.5px solid var(--retro-border);
+  border-radius: 4px;
+  box-shadow: 2px 2px 0px var(--retro-mustard);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
 }
 
 .lesson-list h2 {
-  margin: 0 0 6px;
-  font-family: 'Noto Serif Thai', serif;
-  font-weight: 600;
-  font-size: 1.2rem;
-  color: var(--ink);
+  margin: 4px 0 8px;
+  font-family: 'Pridi', serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--retro-ink-dark);
+  transition: color 0.15s ease;
+}
+
+.lesson-list li:hover h2 {
+  color: var(--retro-rust);
 }
 
 .lesson-excerpt {
   margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.95rem;
+  color: var(--retro-ink-muted);
+  font-size: 0.98rem;
+  line-height: 1.6;
 }
 
-.empty-state {
-  color: var(--ink-soft);
-  padding: 20px 0 60px;
-}
-
-/* Reader */
+/* Retro Reader Sheet */
 .back-link {
-  display: inline-block;
-  margin: 28px 0 20px;
-  color: var(--ink-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 24px 0 20px;
+  color: var(--retro-ink-dark);
   text-decoration: none;
-  font-size: 0.92rem;
+  font-family: 'Righteous', 'Krub', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  background: var(--retro-mustard);
+  border: 2px solid var(--retro-border);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0px var(--retro-border);
+  transition: all 0.18s ease;
 }
 
-.back-link:hover { color: var(--ink); }
+.back-link:hover { 
+  background: var(--retro-burnt-orange);
+  color: #fff;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px var(--retro-border);
+}
+
+.reader-sheet {
+  background: var(--retro-bg-surface);
+  border: 3px solid var(--retro-border);
+  border-radius: 12px;
+  box-shadow: var(--retro-shadow-deep);
+  padding: 42px 38px;
+  margin-bottom: 60px;
+  position: relative;
+}
 
 .reader-content {
-  padding-bottom: 80px;
-  font-family: 'Noto Serif Thai', serif;
-  font-size: 1.08rem;
+  font-family: 'Krub', serif;
+  font-size: 1.12rem;
   line-height: 1.85;
+  color: var(--retro-ink-dark);
 }
 
 .reader-content .r-meta {
-  font-family: 'Sarabun', sans-serif;
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  margin-bottom: 6px;
+  font-size: 0.92rem;
+  color: var(--retro-ink-muted);
+  margin-bottom: 14px;
 }
 
 .reader-content .r-meta .cat {
-  color: var(--gold);
-  font-weight: 600;
+  background: var(--retro-teal);
+  color: #fff;
+  font-family: 'Righteous', 'Krub', sans-serif;
+  padding: 3px 12px;
+  border: 1.5px solid var(--retro-border);
+  border-radius: 4px;
+  box-shadow: 2px 2px 0px var(--retro-border);
 }
 
 .reader-content h1 {
-  font-size: 1.7rem;
-  line-height: 1.35;
+  font-family: 'Pridi', serif;
+  font-size: 2.15rem;
+  font-weight: 700;
+  line-height: 1.3;
   margin: 0 0 24px;
-  color: var(--navy-deep);
+  color: var(--retro-ink-dark);
+  border-bottom: 3px solid var(--retro-border);
+  padding-bottom: 12px;
 }
 
 .reader-content h2 {
-  font-size: 1.3rem;
-  margin: 34px 0 12px;
-  color: var(--navy-deep);
+  font-family: 'Pridi', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin: 36px 0 14px;
+  color: var(--retro-rust);
+  border-left: 5px solid var(--retro-mustard);
+  padding-left: 12px;
 }
 
 .reader-content h3 {
-  font-size: 1.1rem;
-  margin: 26px 0 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 28px 0 10px;
+  color: var(--retro-teal);
 }
 
-.reader-content p { margin: 0 0 18px; }
+.reader-content p { 
+  margin: 0 0 20px; 
+}
 
 .reader-content ul, .reader-content ol {
-  margin: 0 0 18px;
-  padding-left: 1.4em;
+  margin: 0 0 20px;
+  padding-left: 1.6em;
 }
 
-.reader-content li { margin-bottom: 6px; }
+.reader-content li { 
+  margin-bottom: 8px; 
+}
 
 .reader-content blockquote {
-  margin: 24px 0;
-  padding: 4px 0 4px 18px;
-  border-left: 3px solid var(--gold);
-  color: var(--ink-soft);
+  margin: 26px 0;
+  padding: 16px 20px;
+  border-left: 5px solid var(--retro-burnt-orange);
+  background: #f5eedb;
+  border-radius: 4px;
+  border-top: 1.5px solid var(--retro-border);
+  border-bottom: 1.5px solid var(--retro-border);
+  border-right: 1.5px solid var(--retro-border);
+  color: var(--retro-ink-dark);
   font-style: italic;
+  box-shadow: 3px 3px 0px var(--retro-border);
 }
 
 /* Footer */
 .site-footer {
-  background: var(--navy-deep);
-  color: #a9b2c2;
-  font-size: 0.85rem;
-  padding: 22px 0;
-}
-
-/* Motion */
-@media (prefers-reduced-motion: no-preference) {
-  .lesson-list a { transition: padding-left 0.15s ease; }
-  .lesson-list a:hover { padding-left: 6px; }
+  background: var(--retro-border);
+  color: #dfd4c5;
+  border-top: 4px solid var(--retro-mustard);
+  font-size: 0.9rem;
+  padding: 30px 0;
+  text-align: center;
 }
 
 @media (max-width: 520px) {
-  .site-header { padding: 32px 0 26px; }
-  .site-header h1 { font-size: 1.5rem; }
-  .categories { gap: 4px 14px; }
+  .site-header { padding: 26px 18px 22px; }
+  .site-header h1 { font-size: 1.7rem; }
+  .reader-sheet { padding: 26px 18px; }
+  .categories { gap: 6px 8px; }
 }

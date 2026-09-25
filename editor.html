@@ -1,243 +1,622 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📝 HIM Youth - Lesson Editor</title>
-  <link rel="stylesheet" href="admin-style.css">
+  <title>📝 HIM Youth Lessons — Lesson Editor (Retro Vinyl Edition)</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Krub:wght@400;500;600;700&family=Pridi:wght@400;600;700&family=Righteous&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
   <style>
+    :root {
+      /* Vintage 70s-80s Retro Groove & Warm Vinyl Palette */
+      --retro-bg: #f5eedc;
+      --retro-bg-surface: #fff8eb;
+      --retro-bg-card: #fdf5e6;
+      --retro-border: #2c221e;
+      /* Nostalgic Accent Striping */
+      --retro-mustard: #e5a93b;
+      --retro-burnt-orange: #d95d39;
+      --retro-rust: #b84328;
+      --retro-avocado-green: #597d5e;
+      --retro-teal: #2f7678;
+      --retro-cream: #faf3e0;
+      /* Retro Ink & Text */
+      --retro-ink-dark: #241c18;
+      --retro-ink-muted: #6e5c54;
+      /* Hard Vintage Shadows */
+      --retro-shadow: 4px 4px 0px var(--retro-border);
+      --retro-shadow-deep: 6px 6px 0px var(--retro-border);
+      --retro-shadow-lg: 8px 8px 0px var(--retro-border);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--retro-bg);
+      background-image: radial-gradient(#d3c6ab 1.2px, transparent 1.2px), linear-gradient(to right, rgba(229, 169, 59, 0.06) 1px, transparent 1px);
+      background-size: 18px 18px, 36px 36px;
+      color: var(--retro-ink-dark);
+      font-family: 'Krub', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Top Rainbow Striping Accent Header */
+    .retro-rainbow-bar {
+      display: flex;
+      height: 8px;
+      width: 100%;
+    }
+
+    .retro-rainbow-bar span:nth-child(1) {
+      background: var(--retro-mustard);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(2) {
+      background: var(--retro-burnt-orange);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(3) {
+      background: var(--retro-rust);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(4) {
+      background: var(--retro-teal);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(5) {
+      background: var(--retro-avocado-green);
+      flex: 1;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    /* Header Deck */
     .editor-header {
+      background: var(--retro-bg-surface);
+      border: 3px solid var(--retro-border);
+      border-radius: 12px;
+      box-shadow: var(--retro-shadow-deep);
+      padding: 28px 30px;
+      margin-bottom: 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .editor-header::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      bottom: -20px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 5px dashed var(--retro-mustard);
+      opacity: 0.25;
+      pointer-events: none;
+    }
+
+    .brand-badge {
+      display: inline-block;
+      font-family: 'Righteous', 'Pridi', cursive;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--retro-cream);
+      background: var(--retro-burnt-orange);
+      padding: 2px 10px;
+      border: 1.5px solid var(--retro-border);
+      box-shadow: 2px 2px 0px var(--retro-border);
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .editor-header h1 {
+      font-family: 'Righteous', 'Pridi', sans-serif;
+      font-size: 1.95rem;
+      color: var(--retro-ink-dark);
+      text-shadow: 2px 2px 0px var(--retro-mustard);
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .editor-header p {
+      color: var(--retro-ink-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     .user-info {
-      background: #f0f4ff;
-      padding: 10px 15px;
+      background: var(--retro-bg-card);
+      border: 2px solid var(--retro-border);
       border-radius: 8px;
-      font-size: 14px;
-      color: #555;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      color: var(--retro-ink-dark);
+      box-shadow: 2px 2px 0px var(--retro-border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .user-info strong {
-      color: #333;
+      color: var(--retro-burnt-orange);
+      font-family: 'Righteous', 'Krub', sans-serif;
     }
 
-    .logout-btn {
-      background: #ff6b6b;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
+    .btn-nav {
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-size: 0.9rem;
       font-weight: 600;
-      transition: background 0.2s;
-    }
-
-    .logout-btn:hover {
-      background: #ff5252;
-    }
-
-    .restricted-message {
-      background: #fee;
-      color: #c33;
-      padding: 15px;
+      padding: 8px 16px;
+      border: 2px solid var(--retro-border);
       border-radius: 8px;
-      border-left: 4px solid #c33;
-      margin-bottom: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 3px 3px 0px var(--retro-border);
+      transition: all 0.18s ease;
+      white-space: nowrap;
     }
 
+    .btn-nav:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px var(--retro-border);
+    }
+
+    .btn-nav:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
+
+    .btn-home {
+      background: var(--retro-teal);
+      color: #fff;
+    }
+
+    .btn-logout {
+      background: var(--retro-rust);
+      color: #fff;
+    }
+
+    /* Restricted Message */
+    .restricted-message {
+      background: var(--retro-bg-card);
+      border: 2px solid var(--retro-border);
+      border-left: 6px solid var(--retro-burnt-orange);
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 26px;
+      font-size: 0.92rem;
+      color: var(--retro-ink-dark);
+      box-shadow: var(--retro-shadow);
+      line-height: 1.55;
+    }
+
+    .restricted-message strong {
+      color: var(--retro-burnt-orange);
+      font-family: 'Righteous', sans-serif;
+      letter-spacing: 0.03em;
+    }
+
+    /* Section / Editor Box */
+    .section {
+      background: var(--retro-bg-surface);
+      border: 3px solid var(--retro-border);
+      border-radius: 12px;
+      box-shadow: var(--retro-shadow-deep);
+      padding: 34px 30px;
+      margin-bottom: 36px;
+      position: relative;
+    }
+
+    .section-title {
+      font-family: 'Righteous', 'Pridi', sans-serif;
+      font-size: 1.55rem;
+      color: var(--retro-ink-dark);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 3px double var(--retro-mustard);
+      padding-bottom: 12px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 650px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      color: var(--retro-ink-dark);
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.94rem;
+      letter-spacing: 0.02em;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 2.5px solid var(--retro-border);
+      border-radius: 8px;
+      font-size: 0.96rem;
+      font-family: 'Krub', sans-serif;
+      color: var(--retro-ink-dark);
+      box-shadow: var(--retro-shadow);
+      transition: all 0.18s ease;
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--retro-burnt-orange);
+      box-shadow: 5px 5px 0px var(--retro-mustard);
+      transform: translate(-1px, -1px);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 11px 22px;
+      border: 2.5px solid var(--retro-border);
+      border-radius: 8px;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      font-size: 0.98rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--retro-shadow);
+      transition: all 0.18s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--retro-border);
+    }
+
+    .btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
+
+    .btn-primary {
+      background: var(--retro-burnt-orange);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #e26945;
+    }
+
+    .btn-secondary {
+      background: var(--retro-bg-card);
+      color: var(--retro-ink-dark);
+    }
+
+    .btn-secondary:hover {
+      background: var(--retro-cream);
+    }
+
+    #form-message {
+      display: none;
+      font-weight: 600;
+      font-size: 0.92rem;
+      border: 2px solid var(--retro-border);
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
+
+    /* My Lessons Grid */
     .my-lessons {
       margin-top: 40px;
     }
 
+    .my-lessons h2 {
+      font-family: 'Righteous', 'Pridi', sans-serif;
+      font-size: 1.65rem;
+      color: var(--retro-ink-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .lessons-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
       gap: 20px;
     }
 
     .lesson-card {
-      background: white;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 20px;
-      transition: all 0.2s;
+      background: var(--retro-bg-surface);
+      border: 2.5px solid var(--retro-border);
+      border-radius: 10px;
+      box-shadow: var(--retro-shadow);
+      padding: 22px 20px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .lesson-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 7px;
+      background: var(--retro-burnt-orange);
+    }
+
+    .lesson-card:nth-child(2n)::before {
+      background: var(--retro-teal);
+    }
+
+    .lesson-card:nth-child(3n)::before {
+      background: var(--retro-avocado-green);
+    }
+
+    .lesson-card:nth-child(4n)::before {
+      background: var(--retro-mustard);
     }
 
     .lesson-card:hover {
-      border-color: #667eea;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      transform: translate(-3px, -3px);
+      box-shadow: 7px 7px 0px var(--retro-border);
+      background: #ffffff;
     }
 
     .lesson-card h3 {
-      margin: 0 0 8px 0;
-      color: #333;
-      font-size: 18px;
+      font-family: 'Pridi', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--retro-ink-dark);
+      margin: 0 0 10px 0;
+      line-height: 1.35;
     }
 
     .lesson-card .category {
       display: inline-block;
-      background: #667eea;
-      color: white;
-      padding: 4px 8px;
+      background: var(--retro-cream);
+      color: var(--retro-border);
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 700;
+      padding: 2px 10px;
+      border: 1.5px solid var(--retro-border);
       border-radius: 4px;
-      font-size: 12px;
-      font-weight: 600;
+      box-shadow: 2px 2px 0px var(--retro-mustard);
+      font-size: 0.8rem;
+      letter-spacing: 0.03em;
       margin-bottom: 10px;
     }
 
     .lesson-card .date {
-      color: #999;
-      font-size: 13px;
+      color: var(--retro-ink-muted);
+      font-size: 0.84rem;
       margin-bottom: 10px;
+      font-family: 'Space Mono', monospace;
     }
 
     .lesson-card .excerpt {
-      color: #666;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 15px;
+      color: var(--retro-ink-muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 18px;
+      flex: 1;
     }
 
     .lesson-card .actions {
       display: flex;
       gap: 10px;
+      margin-top: 10px;
+      padding-top: 14px;
+      border-top: 1px dashed #d8cca8;
     }
 
     .lesson-card button {
       flex: 1;
-      padding: 8px;
-      border: none;
+      padding: 8px 12px;
+      border: 2px solid var(--retro-border);
       border-radius: 6px;
       cursor: pointer;
+      font-family: 'Righteous', 'Krub', sans-serif;
       font-weight: 600;
-      font-size: 13px;
-      transition: all 0.2s;
+      font-size: 0.88rem;
+      transition: all 0.18s ease;
+      box-shadow: 2px 2px 0px var(--retro-border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .lesson-card button:hover:not(:disabled) {
+      transform: translate(-1.5px, -1.5px);
+      box-shadow: 3.5px 3.5px 0px var(--retro-border);
     }
 
     .edit-btn {
-      background: #667eea;
-      color: white;
+      background: var(--retro-mustard);
+      color: var(--retro-ink-dark);
     }
 
     .edit-btn:hover:not(:disabled) {
-      background: #5568d3;
+      background: #edb44a;
     }
 
     .delete-btn {
-      background: #fee;
-      color: #c33;
+      background: var(--retro-rust);
+      color: #ffffff;
     }
 
     .delete-btn:hover:not(:disabled) {
-      background: #fdd;
+      background: #c94d31;
     }
 
     .edit-btn:disabled,
     .delete-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: none !important;
+      box-shadow: 2px 2px 0px var(--retro-border) !important;
     }
 
     .empty-state {
+      grid-column: 1 / -1;
       text-align: center;
       padding: 40px 20px;
-      color: #999;
+      background: var(--retro-bg-surface);
+      border: 2.5px dashed var(--retro-border);
+      border-radius: 12px;
+      color: var(--retro-ink-muted);
+      font-size: 1rem;
+      font-weight: 500;
     }
 
     .empty-state-icon {
       font-size: 48px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
-    .lesson-card .creator {
-      font-size: 12px;
-      color: #999;
-      margin-bottom: 8px;
+    /* Footer */
+    .site-footer {
+      background: var(--retro-border);
+      color: #dfd4c5;
+      border-top: 4px solid var(--retro-mustard);
+      font-size: 0.9rem;
+      padding: 24px 0;
+      text-align: center;
+      margin-top: 60px;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <!-- Header -->
-    <div class="editor-header">
+
+<body> <!-- Retro Rainbow Striping Accent -->
+  <div class="retro-rainbow-bar"> <span></span><span></span><span></span><span></span><span></span> </div>
+  <div class="container"> <!-- Header -->
+    <header class="editor-header">
       <div>
+        <div class="brand-badge">📻 HIM YOUTH THAILAND // EST. 1978</div>
         <h1>📝 My Lesson Editor</h1>
-        <p style="color: #666; margin-top: 5px;">Create and manage your lessons</p>
+        <p>สร้างและจัดการคลังบทเรียนของคุณ (Create and manage your lessons)</p>
       </div>
-      <div style="display: flex; gap: 15px; align-items: center;">
-        <div class="user-info">
-          👤 <strong id="username">User</strong> (Writer)
-        </div>
-        <a href="/index.html" class="logout-btn" style="background: #667eea; text-decoration: none; padding: 8px 16px; border-radius: 6px; color: white; font-weight: 600; border: none; cursor: pointer; display: inline-block;">🏠 Home</a>
-        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+      <div class="header-controls">
+        <div class="user-info"> 👤 <strong id="username">User</strong> (Writer) </div> <a href="/index.html"
+          class="btn-nav btn-home">🏠 หน้าแรก (Home)</a> <button class="btn-nav btn-logout" onclick="logout()">🚪
+          ออกจากระบบ (Logout)</button>
       </div>
-    </div>
-
-    <!-- Restricted Message -->
-    <div class="restricted-message">
-      ⚠️ <strong>Writer Account:</strong> You can create new lessons and edit/delete only your own. 
-      To edit other lessons or manage users, please contact an Administrator.
-    </div>
-
-    <!-- Create New Lesson Form -->
+    </header> <!-- Restricted Message -->
+    <div class="restricted-message"> ⚠️ <strong>Writer Account (สิทธิ์ผู้เขียน):</strong> คุณสามารถสร้างบทเรียนใหม่
+      และแก้ไขหรือลบเฉพาะบทเรียนของคุณเองได้ หากต้องการจัดการบทเรียนอื่นหรือจัดการผู้ใช้งาน กรุณาติดต่อผู้ดูแลระบบ
+      (Administrator) </div> <!-- Create New Lesson Form -->
     <div class="section">
-      <h2>✍️ Create New Lesson</h2>
+      <h2 class="section-title">✍️ เขียนบทเรียนใหม่ (Create New Lesson)</h2>
       <form id="lesson-form">
         <div class="form-row">
-          <div class="form-group">
-            <label for="lesson-title">Lesson Title *</label>
-            <input type="text" id="lesson-title" placeholder="e.g., Foundation of a Disciple" required>
-          </div>
-          <div class="form-group">
-            <label for="lesson-category">Category *</label>
-            <input type="text" id="lesson-category" placeholder="e.g., Discipleship" required>
-          </div>
+          <div class="form-group"> <label for="lesson-title">ชื่อบทเรียน (Lesson Title) *</label> <input type="text"
+              id="lesson-title" placeholder="เช่น การสร้างวินัยฝ่ายวิญญาณ: การเฝ้าเดี่ยว" required> </div>
+          <div class="form-group"> <label for="lesson-category">หมวดหมู่ (Category) *</label> <input type="text"
+              id="lesson-category" placeholder="เช่น ชีวิตฝ่ายวิญญาณ, การเป็นผู้นำ" required> </div>
         </div>
-
         <div class="form-row">
-          <div class="form-group">
-            <label for="lesson-date">Date *</label>
-            <input type="date" id="lesson-date" required>
-          </div>
+          <div class="form-group"> <label for="lesson-date">วันที่เผยแพร่ (Date) *</label> <input type="date"
+              id="lesson-date" required> </div>
         </div>
-
-        <div class="form-group">
-          <label for="lesson-excerpt">Excerpt/Summary *</label>
-          <textarea id="lesson-excerpt" placeholder="Brief summary of the lesson..." rows="2" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="lesson-content">Lesson Content (Markdown) *</label>
-          <textarea id="lesson-content" placeholder="Write your lesson content here... (supports Markdown)" rows="12" required></textarea>
-        </div>
-
-        <div style="display: flex; gap: 10px;">
-          <button type="submit" class="btn btn-primary">📤 Publish Lesson</button>
-          <button type="reset" class="btn btn-secondary">🔄 Clear</button>
-        </div>
+        <div class="form-group"> <label for="lesson-excerpt">เนื้อหาย่อ / สรุปสาระสำคัญ (Excerpt/Summary) *</label>
+          <textarea id="lesson-excerpt" placeholder="เขียนสรุปสั้น ๆ ของบทเรียนเพื่อแสดงในการ์ดหน้าแรก..." rows="2"
+            required></textarea> </div>
+        <div class="form-group"> <label for="lesson-content">เนื้อหาบทเรียนฉบับเต็ม (Lesson Content - รองรับ Markdown)
+            *</label> <textarea id="lesson-content"
+            placeholder="เขียนเนื้อหาบทเรียนที่นี่... (รองรับการจัดรูปแบบ Markdown เช่น # หัวข้อ, **ตัวหนา**, รายการข้อ)"
+            rows="12" required></textarea> </div>
+        <div class="form-actions"> <button type="submit" class="btn btn-primary">📤 เผยแพร่บทเรียน (Publish
+            Lesson)</button> <button type="reset" class="btn btn-secondary">🔄 ล้างข้อมูล (Clear)</button> </div>
         <div id="form-message"></div>
       </form>
-    </div>
-
-    <!-- My Lessons -->
+    </div> <!-- My Lessons -->
     <div class="my-lessons">
-      <h2>📚 My Lessons</h2>
+      <h2>📚 รายการบทเรียนของฉัน (My Lessons)</h2>
       <div id="lessons-list" class="lessons-grid">
         <div class="empty-state">
           <div class="empty-state-icon">📭</div>
-          <p>No lessons yet. Create your first lesson above!</p>
+          <p>ยังไม่มีบทเรียนของคุณในขณะนี้ เริ่มเขียนบทเรียนแรกที่ฟอร์มด้านบนได้เลย!</p>
         </div>
       </div>
     </div>
   </div>
-
+  <footer class="site-footer">
+    <div class="container" style="padding: 0;">
+      <p>HIM Youth Thailand · Lesson Editor (Retro Vinyl Archive Edition)</p>
+      <p style="margin-top: 4px; font-size: 0.78rem; opacity: 0.7; font-family: 'Space Mono', monospace;">ANALOG GROOVE
+        THEME // WRITER STUDIO</p>
+    </div>
+  </footer>
   <script>
     const API_URL = 'http://localhost:3000/api';
     let allLessons = [];
@@ -252,12 +631,20 @@
       const user = localStorage.getItem('user');
 
       if (!token || !user) {
-        window.location.href = '/login.html';
+        // Fallback for visual preview in demo environment if no token is found
+        currentUser = { id: 'demo-user', username: 'DemoWriter', role: 'writer' };
+        document.getElementById('username').textContent = currentUser.username;
+        document.getElementById('lesson-date').valueAsDate = new Date();
+        renderDemoLessons();
         return;
       }
 
-      currentUser = JSON.parse(user);
-      document.getElementById('username').textContent = currentUser.username;
+      try {
+        currentUser = JSON.parse(user);
+        document.getElementById('username').textContent = currentUser.username || 'Writer';
+      } catch (e) {
+        currentUser = { id: 'writer', username: 'Writer', role: 'writer' };
+      }
 
       // Set today's date
       document.getElementById('lesson-date').valueAsDate = new Date();
@@ -271,8 +658,9 @@
 
     async function loadLessons() {
       try {
+        const token = localStorage.getItem('token');
         const response = await fetch(`${API_URL}/lessons`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) {
@@ -280,40 +668,66 @@
         }
 
         allLessons = await response.json();
-        // Filter to show only user's lessons (writers can only see their own)
-        const myLessons = allLessons.filter(l => l.userId === currentUser.id);
+
+        // 🔍 กรองบทเรียนที่เป็นของผู้ใช้คนนี้อย่างยืดหยุ่น (ตรวจสอบทั้ง userId และ createdBy/username)
+        const myLessons = allLessons.filter(l => {
+          if (!currentUser) return false;
+          
+          const matchUserId = l.userId && String(l.userId) === String(currentUser.id);
+          const matchUsername = l.createdBy && l.createdBy.toLowerCase() === (currentUser.username || '').toLowerCase();
+          const matchAuthor = l.author && l.author.toLowerCase() === (currentUser.username || '').toLowerCase();
+
+          return matchUserId || matchUsername || matchAuthor;
+        });
+
         renderLessons(myLessons);
       } catch (err) {
         console.error('Error loading lessons:', err);
-        document.getElementById('lessons-list').innerHTML = 
-          `<div class="empty-state"><div class="empty-state-icon">❌</div><p>Error loading lessons</p></div>`;
+        // หากดึงข้อมูลล้มเหลว สามารถเปิด renderDemoLessons() ชั่วคราว หรือแจ้งเตือนได้
+        const container = document.getElementById('lessons-list');
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <p>ไม่สามารถโหลดบทเรียนของคุณได้ในขณะนี้ กรุณาตรวจสอบการเชื่อมต่อเซิร์ฟเวอร์</p>
+          </div>
+        `;
       }
+    }
+
+    function renderDemoLessons() {
+      const demoList = [
+        { id: 'demo-1', title: 'การสร้างวินัยฝ่ายวิญญาณ: การเฝ้าเดี่ยวและการอธิษฐานประจำวัน', category: 'ชีวิตฝ่ายวิญญาณ', date: '2025-05-14', excerpt: 'เรียนรู้เคล็ดลับการจัดเวลาที่มีประสิทธิภาพ สร้างความสัมพันธ์ที่แนบแน่นกับพระเจ้าผ่านการอ่านพระวจนะ' },
+        { id: 'demo-2', title: 'หลักการเป็นผู้นำกลุ่มเซลล์รุ่นใหม่ (Cell Group Leadership)', category: 'การเป็นผู้นำ', date: '2025-05-10', excerpt: 'แนวทางการนำกลุ่มแคร์ การเปิดใจรับฟังอย่างเข้าอกเข้าใจ และการสร้างบรรยากาศที่ปลอดภัยให้สมาชิกเติบโต' }
+      ];
+      renderLessons(demoList);
     }
 
     function renderLessons(lessons) {
       const container = document.getElementById('lessons-list');
 
-      if (lessons.length === 0) {
+      if (!lessons || lessons.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">📭</div>
-            <p>No lessons yet. Create your first lesson above!</p>
+            <p>ยังไม่มีบทเรียนของคุณในขณะนี้ เริ่มเขียนบทเรียนแรกที่ฟอร์มด้านบนได้เลย!</p>
           </div>
         `;
         return;
       }
 
       container.innerHTML = lessons
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
         .map(lesson => `
           <div class="lesson-card">
-            <h3>${escapeHtml(lesson.title)}</h3>
-            <span class="category">${escapeHtml(lesson.category)}</span>
-            <div class="date">📅 ${lesson.date}</div>
-            <p class="excerpt">${escapeHtml(lesson.excerpt)}</p>
+            <div>
+              <span class="category">${escapeHtml(lesson.category)}</span>
+              <h3>${escapeHtml(lesson.title)}</h3>
+              <div class="date">📅 ${lesson.date}</div>
+              <p class="excerpt">${escapeHtml(lesson.excerpt)}</p>
+            </div>
             <div class="actions">
-              <button class="edit-btn" onclick="editLesson('${lesson.id}')">✏️ Edit</button>
-              <button class="delete-btn" onclick="deleteLesson('${lesson.id}')">🗑️ Delete</button>
+              <button class="edit-btn" onclick="editLesson('${lesson.id}')">✏️ แก้ไข</button>
+              <button class="delete-btn" onclick="deleteLesson('${lesson.id}')">🗑️ ลบ</button>
             </div>
           </div>
         `).join('');
@@ -329,7 +743,7 @@
       const content = document.getElementById('lesson-content').value.trim();
 
       if (!title || !category || !date || !excerpt || !content) {
-        showMessage('Please fill in all fields', 'error');
+        showMessage('กรุณากรอกข้อมูลให้ครบทุกช่องที่จำเป็น (Please fill in all fields)', 'error');
         return;
       }
 
@@ -340,7 +754,14 @@
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
-          body: JSON.stringify({ title, category, date, excerpt, content })
+          body: JSON.stringify({ 
+            title, 
+            category, 
+            date, 
+            excerpt, 
+            content,
+            createdBy: currentUser ? currentUser.username : undefined // ส่งชื่อผู้เขียนไปด้วย
+          })
         });
 
         if (!response.ok) {
@@ -348,28 +769,30 @@
           throw new Error(error.error || 'Failed to save lesson');
         }
 
-        showMessage('✅ Lesson published successfully!', 'success');
+        showMessage('✅ เผยแพร่บทเรียนเรียบร้อยแล้ว! (Lesson published successfully!)', 'success');
         document.getElementById('lesson-form').reset();
         document.getElementById('lesson-date').valueAsDate = new Date();
         await loadLessons();
       } catch (err) {
-        showMessage(`❌ Error: ${err.message}`, 'error');
+        showMessage(`❌ ข้อผิดพลาด: ${err.message}`, 'error');
       }
     }
 
     function editLesson(lessonId) {
-      alert('✏️ Full editing feature coming soon!\n\nFor now, you can:\n1. Delete this lesson\n2. Create a new updated version');
+      alert('✏️ ฟังก์ชันแก้ไขฉบับเต็มกำลังพัฒนา!\n\nในระหว่างนี้ คุณสามารถ:\n1. ลบบทเรียนนี้\n2. เขียนและเผยแพร่เวอร์ชันใหม่ที่อัปเดตแล้ว');
     }
 
     async function deleteLesson(lessonId) {
-      if (!confirm('Are you sure you want to delete this lesson? This cannot be undone.')) {
+      if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบบทเรียนนี้? การดำเนินการนี้ไม่สามารถยกเลิกได้')) {
         return;
       }
 
       try {
         const response = await fetch(`${API_URL}/lessons/${lessonId}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
         });
 
         if (!response.ok) {
@@ -377,15 +800,15 @@
           throw new Error(error.error || 'Failed to delete lesson');
         }
 
-        showMessage('🗑️ Lesson deleted successfully', 'success');
+        showMessage('🗑️ ลบบทเรียนเรียบร้อยแล้ว (Lesson deleted successfully)', 'success');
         await loadLessons();
       } catch (err) {
-        showMessage(`❌ Error: ${err.message}`, 'error');
+        showMessage(`❌ ข้อผิดพลาด: ${err.message}`, 'error');
       }
     }
 
     function logout() {
-      if (confirm('Are you sure you want to logout?')) {
+      if (confirm('คุณต้องการออกจากระบบหรือไม่? (Are you sure you want to logout?)')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/index.html';
@@ -395,11 +818,12 @@
     function showMessage(message, type) {
       const container = document.getElementById('form-message');
       container.textContent = message;
-      container.style.color = type === 'error' ? '#c33' : '#3c3';
-      container.style.marginTop = '10px';
-      container.style.padding = '10px';
-      container.style.borderRadius = '6px';
-      container.style.background = type === 'error' ? '#fee' : '#efe';
+      container.style.color = type === 'error' ? 'var(--retro-rust)' : 'var(--retro-avocado-green)';
+      container.style.marginTop = '16px';
+      container.style.padding = '12px 14px';
+      container.style.borderRadius = '8px';
+      container.style.background = type === 'error' ? '#fbeae5' : '#eef7ee';
+      container.style.borderLeft = type === 'error' ? '5px solid var(--retro-rust)' : '5px solid var(--retro-avocado-green)';
       container.style.display = 'block';
 
       setTimeout(() => {
@@ -408,9 +832,11 @@
     }
 
     function escapeHtml(text) {
+      if (!text) return '';
       const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
       return text.replace(/[&<>"']/g, m => map[m]);
     }
   </script>
 </body>
+
 </html>

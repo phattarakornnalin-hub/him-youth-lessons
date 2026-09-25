@@ -193,9 +193,9 @@ function renderLessonsList() {
   const query = searchLessons.value.toLowerCase();
   const filtered = allLessons.filter(
     (l) =>
-      l.title.toLowerCase().includes(query) ||
-      l.category.toLowerCase().includes(query) ||
-      l.id.toLowerCase().includes(query) ||
+      (l.title && l.title.toLowerCase().includes(query)) ||
+      (l.category && l.category.toLowerCase().includes(query)) ||
+      (l.id && l.id.toLowerCase().includes(query)) ||
       (l.createdBy && l.createdBy.toLowerCase().includes(query))
   );
 
@@ -205,32 +205,47 @@ function renderLessonsList() {
   filtered.forEach((lesson) => {
     const div = document.createElement('div');
     div.className = 'lesson-card';
-    const creatorInfo = lesson.createdBy ? `<p class="lesson-card-creator">👤 By: ${escapeHtml(lesson.createdBy)}</p>` : '';
     
+    const formattedDate = typeof formatDate === 'function' ? formatDate(lesson.date) : (lesson.date || '');
+    const creatorText = lesson.createdBy ? escapeHtml(lesson.createdBy) : 'admin';
+
     div.innerHTML = `
       <div class="lesson-card-head">
-        <div>
-          <h3>${escapeHtml(lesson.title)}</h3>
-          <p class="lesson-card-meta">
-            <span class="cat">${escapeHtml(lesson.category)}</span> · ${formatDate(lesson.date)}
-          </p>
-          ${creatorInfo}
+        <div class="lesson-card-meta">
+          <span class="cat">${escapeHtml(lesson.category || 'ทั่วไป')}</span>
+          <span class="lesson-card-id">ID: <code>${escapeHtml(lesson.id || '')}</code></span>
+          <span class="lesson-date">📅 ${formattedDate}</span>
+        </div>
+        <div class="lesson-card-actions">
+          <button type="button" class="btn btn-sm btn-edit" data-edit="${lesson.id}">✏️ แก้ไข</button>
+          <button type="button" class="btn btn-sm btn-delete" data-delete="${lesson.id}">🗑️ ลบ</button>
         </div>
       </div>
-      <p class="lesson-card-excerpt">${escapeHtml(lesson.excerpt)}</p>
-      <p class="lesson-card-id">ID: <code>${escapeHtml(lesson.id)}</code></p>
-      <div class="lesson-card-actions">
-        <button class="btn btn-sm btn-secondary" data-edit="${lesson.id}">✏️ แก้ไข</button>
-        <button class="btn btn-sm btn-danger" data-delete="${lesson.id}">🗑️ ลบ</button>
+
+      <div class="lesson-card-body">
+        <h3 class="lesson-title">${escapeHtml(lesson.title || '')}</h3>
+        ${lesson.excerpt ? `<p class="lesson-card-excerpt">${escapeHtml(lesson.excerpt)}</p>` : ''}
+      </div>
+
+      <div class="lesson-card-footer">
+        <span class="lesson-card-creator">👤 By: <strong>${creatorText}</strong></span>
       </div>
     `;
 
-    div.querySelector('[data-edit]').addEventListener('click', () => loadLessonForEdit(lesson));
-    div.querySelector('[data-delete]').addEventListener('click', () => {
-      if (confirm(`ยืนยันการลบ "${lesson.title}"?`)) {
-        deleteLesson(lesson.id);
-      }
-    });
+    // Event Listeners เดิมของคุณ
+    const editBtn = div.querySelector('[data-edit]');
+    if (editBtn) {
+      editBtn.addEventListener('click', () => loadLessonForEdit(lesson));
+    }
+
+    const deleteBtn = div.querySelector('[data-delete]');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => {
+        if (confirm(`ยืนยันการลบ "${lesson.title}"?`)) {
+          deleteLesson(lesson.id);
+        }
+      });
+    }
 
     lessonsList.appendChild(div);
   });

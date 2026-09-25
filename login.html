@@ -1,10 +1,39 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔐 HIM Youth Lessons - Login</title>
+  <title>🔐 HIM Youth Lessons — Login (Retro Vinyl Edition)</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Krub:wght@400;500;600;700&family=Pridi:wght@400;600;700&family=Righteous&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
   <style>
+    :root {
+      /* Retro Vinyl Groove Palette */
+      --retro-bg: #f5eedc;
+      --retro-bg-surface: #fff8eb;
+      --retro-bg-card: #fdf5e6;
+      --retro-border: #2c221e;
+      /* Nostalgic Accent Stripes */
+      --retro-mustard: #e5a93b;
+      --retro-burnt-orange: #d95d39;
+      --retro-rust: #b84328;
+      --retro-avocado-green: #597d5e;
+      --retro-teal: #2f7678;
+      --retro-cream: #faf3e0;
+      /* Retro Ink & Text */
+      --retro-ink-dark: #241c18;
+      --retro-ink-muted: #6e5c54;
+      /* Hard Vintage Shadows */
+      --retro-shadow: 4px 4px 0px var(--retro-border);
+      --retro-shadow-deep: 6px 6px 0px var(--retro-border);
+      --retro-shadow-lg: 8px 8px 0px var(--retro-border);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -12,125 +41,225 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Krub', sans-serif;
+      background-color: var(--retro-bg);
+      background-image: radial-gradient(#d3c6ab 1.2px, transparent 1.2px), linear-gradient(to right, rgba(229, 169, 59, 0.08) 1px, transparent 1px);
+      background-size: 18px 18px, 36px 36px;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 24px 16px;
+      color: var(--retro-ink-dark);
+      position: relative;
     }
 
-    .login-container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    /* Top Rainbow Striping */
+    .retro-rainbow-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      height: 8px;
       width: 100%;
-      max-width: 400px;
-      padding: 40px;
-      animation: slideIn 0.3s ease-out;
+      z-index: 100;
     }
 
-    @keyframes slideIn {
+    .retro-rainbow-bar span:nth-child(1) {
+      background: var(--retro-mustard);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(2) {
+      background: var(--retro-burnt-orange);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(3) {
+      background: var(--retro-rust);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(4) {
+      background: var(--retro-teal);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(5) {
+      background: var(--retro-avocado-green);
+      flex: 1;
+    }
+
+    /* Outer Wrapper for Vintage Depth */
+    .login-wrapper {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      margin: 20px 0;
+    }
+
+    /* Decorative Vinyl Disc Graphic Behind Card */
+    .vinyl-backdrop {
+      position: absolute;
+      top: -30px;
+      right: -25px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #d95d39 20%, #2c221e 21%, #2c221e 24%, #1a1412 25%, #2c221e 40%, #1a1412 42%, #2c221e 65%, #e5a93b 66%, #e5a93b 69%, #2c221e 70%);
+      box-shadow: 4px 4px 0px rgba(44, 34, 30, 0.4);
+      z-index: 0;
+      transform: rotate(15deg);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .vinyl-backdrop::after {
+      content: "45 RPM";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    /* Login Card - Cassette Deck Case */
+    .login-container {
+      background: var(--retro-bg-surface);
+      border: 3px solid var(--retro-border);
+      border-radius: 14px;
+      box-shadow: var(--retro-shadow-lg);
+      padding: 38px 32px 32px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(18px) scale(0.98);
       }
+
       to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
+    }
+
+    .card-tape-accent {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: repeating-linear-gradient(-45deg, var(--retro-burnt-orange), var(--retro-burnt-orange) 10px, var(--retro-mustard) 10px, var(--retro-mustard) 20px);
+      border-bottom: 2px solid var(--retro-border);
     }
 
     .logo-section {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 24px;
+      position: relative;
     }
 
-    .logo {
-      font-size: 48px;
-      margin-bottom: 10px;
+    .brand-badge {
+      display: inline-block;
+      font-family: 'Righteous', 'Pridi', cursive;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--retro-cream);
+      background: var(--retro-burnt-orange);
+      padding: 3px 10px;
+      border: 1.5px solid var(--retro-border);
+      box-shadow: 2px 2px 0px var(--retro-border);
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+
+    .logo-icon-wrap {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 12px;
+      background: var(--retro-mustard);
+      border: 2.5px solid var(--retro-border);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0px var(--retro-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      transform: rotate(-3deg);
+      transition: transform 0.2s ease;
+    }
+
+    .logo-icon-wrap:hover {
+      transform: rotate(0deg) scale(1.05);
     }
 
     h1 {
-      font-size: 24px;
-      color: #333;
-      margin-bottom: 8px;
+      font-family: 'Righteous', 'Pridi', sans-serif;
+      font-size: 1.85rem;
+      color: var(--retro-ink-dark);
+      text-shadow: 2px 2px 0px var(--retro-mustard);
+      line-height: 1.25;
+      margin-bottom: 4px;
     }
 
     .subtitle {
-      color: #666;
-      font-size: 14px;
+      color: var(--retro-ink-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
     }
 
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      color: #333;
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
+    .info-box {
+      background: var(--retro-bg-card);
+      border: 2px solid var(--retro-border);
+      border-left: 6px solid var(--retro-teal);
       padding: 12px 14px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-      font-family: inherit;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 0.88rem;
+      color: var(--retro-ink-dark);
+      box-shadow: 2px 2px 0px var(--retro-border);
     }
 
-    input[type="text"]:focus,
-    input[type="password"]:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    .info-box strong {
+      color: var(--retro-teal);
+      font-family: 'Righteous', sans-serif;
+      letter-spacing: 0.05em;
+      display: inline-block;
+      margin-bottom: 2px;
     }
 
-    .login-btn {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin-top: 10px;
-    }
-
-    .login-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .login-btn:active {
-      transform: translateY(0);
-    }
-
-    .login-btn.loading {
-      opacity: 0.7;
-      cursor: not-allowed;
+    .info-box p {
+      margin: 0;
+      color: var(--retro-ink-muted);
+      font-weight: 500;
     }
 
     .error {
-      background: #fee;
-      color: #c33;
-      padding: 12px;
+      background: #fbeae5;
+      color: var(--retro-rust);
+      padding: 12px 14px;
       border-radius: 8px;
       margin-bottom: 20px;
-      font-size: 14px;
-      border-left: 4px solid #c33;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 2px solid var(--retro-border);
+      border-left: 6px solid var(--retro-rust);
+      box-shadow: 2px 2px 0px var(--retro-border);
       display: none;
-      animation: slideIn 0.2s ease-out;
+      animation: popIn 0.2s ease-out;
     }
 
     .error.show {
@@ -138,19 +267,153 @@
     }
 
     .success {
-      background: #efe;
-      color: #3c3;
-      padding: 12px;
+      background: #eef7ee;
+      color: var(--retro-avocado-green);
+      padding: 12px 14px;
       border-radius: 8px;
       margin-bottom: 20px;
-      font-size: 14px;
-      border-left: 4px solid #3c3;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 2px solid var(--retro-border);
+      border-left: 6px solid var(--retro-avocado-green);
+      box-shadow: 2px 2px 0px var(--retro-border);
       display: none;
-      animation: slideIn 0.2s ease-out;
+      animation: popIn 0.2s ease-out;
     }
 
     .success.show {
       display: block;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      color: var(--retro-ink-dark);
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 2.5px solid var(--retro-border);
+      border-radius: 8px;
+      font-size: 0.98rem;
+      font-family: 'Krub', sans-serif;
+      font-weight: 500;
+      color: var(--retro-ink-dark);
+      box-shadow: var(--retro-shadow);
+      transition: all 0.18s ease;
+      outline: none;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="password"]::placeholder {
+      color: #9d8d85;
+      font-weight: 400;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--retro-burnt-orange);
+      box-shadow: 5px 5px 0px var(--retro-mustard);
+      transform: translate(-1px, -1px);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--retro-burnt-orange);
+      color: #ffffff;
+      border: 2.5px solid var(--retro-border);
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      margin-top: 10px;
+      box-shadow: var(--retro-shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .login-btn:hover {
+      background: #e26945;
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--retro-border);
+    }
+
+    .login-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
+
+    .login-btn.loading {
+      opacity: 0.8;
+      cursor: not-allowed;
+      background: #9d8d85;
+      transform: none;
+      box-shadow: var(--retro-shadow);
+    }
+
+    .demo-credentials {
+      background: var(--retro-cream);
+      border: 2px solid var(--retro-border);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 24px;
+      font-size: 0.82rem;
+      color: var(--retro-ink-muted);
+      box-shadow: 2px 2px 0px var(--retro-border);
+      position: relative;
+    }
+
+    .demo-credentials .badge {
+      position: absolute;
+      top: -10px;
+      left: 14px;
+      background: var(--retro-mustard);
+      color: var(--retro-ink-dark);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 1px 8px;
+      border: 1.5px solid var(--retro-border);
+      border-radius: 4px;
+      box-shadow: 1.5px 1.5px 0px var(--retro-border);
+    }
+
+    .demo-credentials p {
+      margin: 4px 0;
+      line-height: 1.5;
+    }
+
+    .demo-credentials code {
+      background: #ffffff;
+      padding: 2px 6px;
+      border: 1px solid var(--retro-border);
+      border-radius: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--retro-rust);
+      font-weight: 700;
     }
 
     .back-link {
@@ -159,191 +422,92 @@
     }
 
     .back-link a {
-      color: #667eea;
+      color: var(--retro-ink-dark);
       text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      transition: color 0.2s;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--retro-bg-surface);
+      border: 2px solid var(--retro-border);
+      border-radius: 20px;
+      box-shadow: 2px 2px 0px var(--retro-border);
+      transition: all 0.18s ease;
     }
 
     .back-link a:hover {
-      color: #764ba2;
-      text-decoration: underline;
+      background: var(--retro-teal);
+      color: #ffffff;
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0px var(--retro-border);
     }
 
-    .info-box {
-      background: #f5f7ff;
-      border-left: 4px solid #667eea;
-      padding: 12px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      font-size: 13px;
-      color: #555;
-      line-height: 1.5;
+    .retro-footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 0.78rem;
+      font-family: 'Space Mono', monospace;
+      color: var(--retro-ink-muted);
+      opacity: 0.8;
     }
 
-    .info-box strong {
-      color: #333;
-    }
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 32px 22px 26px;
+      }
 
-    .demo-credentials {
-      background: #fff9e6;
-      border-left: 4px solid #ffc107;
-      padding: 12px;
-      border-radius: 4px;
-      margin-top: 20px;
-      font-size: 12px;
-      color: #666;
-    }
+      .vinyl-backdrop {
+        display: none;
+      }
 
-    .demo-credentials p {
-      margin: 4px 0;
-    }
-
-    .demo-credentials code {
-      background: white;
-      padding: 2px 4px;
-      border-radius: 3px;
-      font-family: 'Courier New', monospace;
-      color: #333;
+      h1 {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="login-container">
-    <div class="logo-section">
-      <div class="logo">📖</div>
-      <h1>HIM Youth Lessons</h1>
-      <p class="subtitle">Role-Based Lesson Management</p>
-    </div>
-
-    <div class="error" id="error-msg"></div>
-    <div class="success" id="success-msg"></div>
-
-    <div class="info-box">
-      <strong>👤 Your Role:</strong>
-      <p id="role-info">Login to see your role</p>
-    </div>
-
-    <form id="login-form">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Enter your username" required>
+  <div class="retro-rainbow-bar"> <span></span><span></span><span></span><span></span><span></span> </div>
+  <div class="login-wrapper">
+    <div class="vinyl-backdrop"></div>
+    <div class="login-container">
+      <div class="card-tape-accent"></div>
+      <div class="logo-section">
+        <div class="brand-badge">📻 HIM YOUTH THAILAND // EST. 1978</div>
+        <div class="logo-icon-wrap">📖</div>
+        <h1>HIM Youth Lessons</h1>
+        <p class="subtitle">ระบบล็อกอินคลังบทเรียนสร้างสาวก</p>
       </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required>
+      <div class="error" id="error-msg"></div>
+      <div class="success" id="success-msg"></div>
+      <div class="info-box"> <strong>👤 สถานะผู้ใช้ (Your Role):</strong>
+        <p id="role-info">โปรดลงชื่อเข้าใช้เพื่อดูสิทธิ์และเข้าสู่ระบบจัดการ</p>
       </div>
-
-      <button type="submit" class="login-btn" id="login-btn">🔓 Sign In</button>
-    </form>
-
-    <div class="demo-credentials">
-      <p><strong>Demo Credentials:</strong></p>
-      <p>📌 Admin: <code>admin</code> / <code>admin123</code></p>
-      <p style="margin-top: 8px; color: #999;">
-        Writers and Editors must be created by Admin at /admin.html
-      </p>
+      <form id="login-form">
+        <div class="form-group"> <label for="username">ชื่อผู้ใช้ (Username)</label>
+          <div class="input-wrap"> <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้ เช่น admin" required
+              autocomplete="username"> </div>
+        </div>
+        <div class="form-group"> <label for="password">รหัสผ่าน (Password)</label>
+          <div class="input-wrap"> <input type="password" id="password" placeholder="กรอกรหัสผ่าน" required
+              autocomplete="current-password"> </div>
+        </div> <button type="submit" class="login-btn" id="login-btn"> <span>🔓</span> เข้าสู่ระบบ (Sign In) </button>
+      </form>
+      <div class="demo-credentials"> <span class="badge">ANALOG LOG</span>
+        <p><strong>ข้อมูลสำหรับทดสอบระบบ (Demo Credentials):</strong></p>
+        <p>📌 ผู้ดูแลระบบ (Admin): <code>admin</code> / <code>admin123</code></p>
+        <p style="margin-top: 6px; font-size: 0.76rem; color: #8a7a72;"> * บัญชีผู้เขียน (Writers) และบรรณาธิการ
+          (Editors) จัดการโดย Admin ที่หน้า /admin.html </p>
+      </div>
+      <div class="back-link"> <a href="/">← กลับไปยังหน้าคลังบทเรียน (Back to Lessons)</a> </div>
     </div>
-
-    <div class="back-link">
-      <a href="/">← Back to Lessons</a>
-    </div>
+    <div class="retro-footer"> HIM YOUTH THAILAND · RETRO VINYL ARCHIVE </div>
   </div>
-
-  <script>
-    const API_URL = 'http://localhost:3000/api';
-
-    const form = document.getElementById('login-form');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const loginBtn = document.getElementById('login-btn');
-    const errorMsg = document.getElementById('error-msg');
-    const successMsg = document.getElementById('success-msg');
-    const roleInfo = document.getElementById('role-info');
-
-    // Check if user is already logged in
-    checkAuth();
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await login();
-    });
-
-    async function login() {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value;
-
-      if (!username || !password) {
-        showError('Please enter both username and password');
-        return;
-      }
-
-      loginBtn.disabled = true;
-      loginBtn.classList.add('loading');
-      loginBtn.textContent = '🔄 Signing in...';
-
-      try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Login failed');
-        }
-
-        // Store token
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-
-        showSuccess(`Welcome, ${data.user.username}! Redirecting...`);
-        
-        // Redirect based on role
-        setTimeout(() => {
-          if (data.user.role === 'admin') {
-            window.location.href = '/admin.html';
-          } else if (data.user.role === 'writer') {
-            window.location.href = '/editor.html';
-          } else {
-            window.location.href = '/';
-          }
-        }, 1500);
-
-      } catch (err) {
-        showError(err.message);
-        loginBtn.disabled = false;
-        loginBtn.classList.remove('loading');
-        loginBtn.textContent = '🔓 Sign In';
-      }
-    }
-
-    function checkAuth() {
-      const token = localStorage.getItem('token');
-      const user = localStorage.getItem('user');
-
-      if (token && user) {
-        const userData = JSON.parse(user);
-        roleInfo.textContent = `You're logged in as ${userData.username} (${userData.role.toUpperCase()})`;
-        showSuccess(`Already logged in as ${userData.username}`);
-      }
-    }
-
-    function showError(message) {
-      errorMsg.textContent = message;
-      errorMsg.classList.add('show');
-      successMsg.classList.remove('show');
-    }
-
-    function showSuccess(message) {
-      successMsg.textContent = message;
-      successMsg.classList.add('show');
-      errorMsg.classList.remove('show');
-    }
-  </script>
+  <script> const API_URL = 'http://localhost:3000/api'; const form = document.getElementById('login-form'); const usernameInput = document.getElementById('username'); const passwordInput = document.getElementById('password'); const loginBtn = document.getElementById('login-btn'); const errorMsg = document.getElementById('error-msg'); const successMsg = document.getElementById('success-msg'); const roleInfo = document.getElementById('role-info'); checkAuth(); form.addEventListener('submit', async (e) => { e.preventDefault(); await login(); }); async function login() { const username = usernameInput.value.trim(); const password = passwordInput.value; if (!username || !password) { showError('กรุณากรอกทั้งชื่อผู้ใช้และรหัสผ่าน (Please enter both username and password)'); return; } loginBtn.disabled = true; loginBtn.classList.add('loading'); loginBtn.innerHTML = '<span>🔄</span> กำลังเข้าสู่ระบบ...'; try { const response = await fetch(`${API_URL}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) }); const data = await response.json(); if (!response.ok) { throw new Error(data.error || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'); } localStorage.setItem('token', data.token); localStorage.setItem('user', JSON.stringify(data.user)); showSuccess(`ยินดีต้อนรับคุณ ${data.user.username}! กำลังพาไปยังหน้าระบบ...`); setTimeout(() => { if (data.user.role === 'admin') { window.location.href = '/admin.html'; } else if (data.user.role === 'writer') { window.location.href = '/editor.html'; } else { window.location.href = '/'; } }, 1500); } catch (err) { showError(err.message || 'เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'); loginBtn.disabled = false; loginBtn.classList.remove('loading'); loginBtn.innerHTML = '<span>🔓</span> เข้าสู่ระบบ (Sign In)'; } } function checkAuth() { const token = localStorage.getItem('token'); const user = localStorage.getItem('user'); if (token && user) { try { const userData = JSON.parse(user); roleInfo.textContent = `คุณล็อกอินอยู่ในระบบแล้ว: ${userData.username} (${(userData.role || 'USER').toUpperCase()})`; showSuccess(`เข้าสู่ระบบอยู่แล้วในชื่อ ${userData.username}`); } catch (e) { } } } function showError(message) { errorMsg.textContent = message; errorMsg.classList.add('show'); successMsg.classList.remove('show'); } function showSuccess(message) { successMsg.textContent = message; successMsg.classList.add('show'); errorMsg.classList.remove('show'); } </script>
 </body>
+
 </html>

@@ -1,143 +1,583 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HIM YOUTH THAILAND — คลังบทเรียน</title>
-<link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<style>
-  .site-header .wrap {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-  }
-
-  .header-content {
-    flex: 1;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 10px;
-    flex-direction: column;
-    min-width: 180px;
-  }
-
-  .btn {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    text-decoration: none;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.3s;
-    white-space: nowrap;
-    display: inline-block;
-  }
-
-  .btn-primary {
-    background: #667eea;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #5568d3;
-  }
-
-  .btn-admin {
-    background: #764ba2;
-    color: white;
-  }
-
-  .btn-admin:hover {
-    background: #63408a;
-  }
-
-  .btn-danger {
-    background: #c33;
-    color: white;
-  }
-
-  .btn-danger:hover {
-    background: #a22;
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 768px) {
-    .site-header .wrap {
-      flex-direction: column;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HIM YOUTH THAILAND — คลังบทเรียน (Retro Vinyl Theme)</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Krub:wght@400;500;600;700&family=Pridi:wght@400;600;700&family=Righteous&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      /* Vintage 70s-80s Retro Groove & Warm Vinyl Palette */
+      --retro-bg: #f5eedc;
+      --retro-bg-surface: #fff8eb;
+      --retro-bg-card: #fdf5e6;
+      --retro-border: #2c221e;
+      /* Nostalgic Accent Striping */
+      --retro-mustard: #e5a93b;
+      --retro-burnt-orange: #d95d39;
+      --retro-rust: #b84328;
+      --retro-avocado-green: #597d5e;
+      --retro-teal: #2f7678;
+      --retro-cream: #faf3e0;
+      /* Retro Ink & Text */
+      --retro-ink-dark: #241c18;
+      --retro-ink-muted: #6e5c54;
+      /* Hard Vintage Shadows */
+      --retro-shadow: 4px 4px 0px var(--retro-border);
+      --retro-shadow-deep: 6px 6px 0px var(--retro-border);
     }
 
-    .header-actions {
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--retro-bg);
+      background-image: radial-gradient(#d3c6ab 1.2px, transparent 1.2px), linear-gradient(to right, rgba(229, 169, 59, 0.06) 1px, transparent 1px);
+      background-size: 18px 18px, 36px 36px;
+      color: var(--retro-ink-dark);
+      font-family: 'Krub', sans-serif;
+      line-height: 1.65;
+    }
+
+    /* Retro Rainbow Top Accent */
+    .retro-rainbow-bar {
+      display: flex;
+      height: 8px;
       width: 100%;
-      flex-direction: row;
-      min-width: auto;
     }
 
-    .header-actions .btn {
+    .retro-rainbow-bar span:nth-child(1) {
+      background: var(--retro-mustard);
       flex: 1;
     }
-  }
-</style>
+
+    .retro-rainbow-bar span:nth-child(2) {
+      background: var(--retro-burnt-orange);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(3) {
+      background: var(--retro-rust);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(4) {
+      background: var(--retro-teal);
+      flex: 1;
+    }
+
+    .retro-rainbow-bar span:nth-child(5) {
+      background: var(--retro-avocado-green);
+      flex: 1;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+    }
+
+    /* Header - Retro Vinyl Edition */
+    .site-header {
+      background: var(--retro-bg-surface);
+      border: 3px solid var(--retro-border);
+      border-radius: 12px;
+      box-shadow: var(--retro-shadow-deep);
+      margin-top: 28px;
+      padding: 34px 32px 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .site-header::after {
+      content: "";
+      position: absolute;
+      right: -25px;
+      bottom: -25px;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 6px dashed var(--retro-mustard);
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .site-header .wrap-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .header-content {
+      flex: 1;
+    }
+
+    .site-header .brand {
+      margin: 0 0 10px;
+      font-family: 'Righteous', 'Pridi', cursive;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--retro-cream);
+      display: inline-block;
+      background: var(--retro-burnt-orange);
+      padding: 4px 12px;
+      border: 2px solid var(--retro-border);
+      box-shadow: 2px 2px 0px var(--retro-border);
+      border-radius: 4px;
+    }
+
+    .site-header h1 {
+      margin: 6px 0 12px;
+      font-family: 'Righteous', 'Pridi', sans-serif;
+      font-size: 2.2rem;
+      line-height: 1.28;
+      color: var(--retro-ink-dark);
+      text-shadow: 2px 2px 0px var(--retro-mustard);
+    }
+
+    .site-header .tagline {
+      margin: 0;
+      max-width: 58ch;
+      color: var(--retro-ink-muted);
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+
+    /* Retro Action Buttons */
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+      min-width: 190px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border: 2px solid var(--retro-border);
+      border-radius: 8px;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 3px 3px 0px var(--retro-border);
+    }
+
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px var(--retro-border);
+    }
+
+    .btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
+
+    .btn-primary {
+      background: var(--retro-burnt-orange);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #e26945;
+    }
+
+    .btn-admin {
+      background: var(--retro-teal);
+      color: #ffffff;
+    }
+
+    .btn-admin:hover {
+      background: #388a8c;
+    }
+
+    .btn-danger {
+      background: var(--retro-rust);
+      color: #ffffff;
+    }
+
+    .btn-danger:hover {
+      background: #c94d31;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      padding: 24px 0 14px;
+      position: sticky;
+      top: 0;
+      background: rgba(245, 238, 220, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      margin-bottom: 20px;
+      border-bottom: 3px double var(--retro-mustard);
+    }
+
+    .search-container {
+      position: relative;
+    }
+
+    #search {
+      width: 100%;
+      padding: 13px 18px 13px 44px;
+      font-family: 'Krub', sans-serif;
+      font-size: 1.02rem;
+      font-weight: 600;
+      border: 2.5px solid var(--retro-border);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--retro-ink-dark);
+      box-shadow: var(--retro-shadow);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--retro-burnt-orange);
+      font-size: 1.15rem;
+      pointer-events: none;
+    }
+
+    #search:focus {
+      border-color: var(--retro-burnt-orange);
+      box-shadow: 5px 5px 0px var(--retro-mustard);
+      transform: translate(-1px, -1px);
+    }
+
+    /* Retro Capsule Categories */
+    .categories {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 10px;
+    }
+
+    .categories button {
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-size: 0.92rem;
+      color: var(--retro-ink-dark);
+      background: var(--retro-bg-surface);
+      border: 2px solid var(--retro-border);
+      border-radius: 20px;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 2px 2px 0px var(--retro-border);
+    }
+
+    .categories button:hover {
+      background: var(--retro-teal);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 3px 3px 0px var(--retro-border);
+    }
+
+    .categories button.active {
+      background: var(--retro-mustard);
+      color: var(--retro-ink-dark);
+      box-shadow: 3px 3px 0px var(--retro-border);
+      font-weight: 700;
+      transform: translateY(-1px);
+    }
+
+    /* Lesson List */
+    .lesson-list {
+      list-style: none;
+      margin: 16px 0 60px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .lesson-list li {
+      background: var(--retro-bg-surface);
+      border: 2.5px solid var(--retro-border);
+      border-radius: 10px;
+      box-shadow: var(--retro-shadow);
+      transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lesson-list li::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 8px;
+      background: var(--retro-burnt-orange);
+    }
+
+    .lesson-list li:nth-child(2n)::before {
+      background: var(--retro-teal);
+    }
+
+    .lesson-list li:nth-child(3n)::before {
+      background: var(--retro-avocado-green);
+    }
+
+    .lesson-list li:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 7px 7px 0px var(--retro-border);
+      background: #fff;
+    }
+
+    .lesson-list a {
+      display: block;
+      padding: 22px 26px 22px 30px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .lesson-meta {
+      font-size: 0.88rem;
+      color: var(--retro-ink-muted);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lesson-meta .cat {
+      background: var(--retro-cream);
+      color: var(--retro-border);
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-weight: 700;
+      padding: 2px 10px;
+      border: 1.5px solid var(--retro-border);
+      border-radius: 4px;
+      box-shadow: 2px 2px 0px var(--retro-mustard);
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
+    }
+
+    .lesson-list h2 {
+      margin: 4px 0 8px;
+      font-family: 'Pridi', serif;
+      font-weight: 700;
+      font-size: 1.38rem;
+      color: var(--retro-ink-dark);
+      transition: color 0.15s ease;
+    }
+
+    .lesson-list li:hover h2 {
+      color: var(--retro-rust);
+    }
+
+    .lesson-excerpt {
+      margin: 0;
+      color: var(--retro-ink-muted);
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .lesson-footer-meta {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px dashed #d5c7ab;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--retro-ink-muted);
+    }
+
+    .lesson-footer-meta .read-btn {
+      color: var(--retro-rust);
+      font-weight: 700;
+    }
+
+    /* Reader Sheet */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 24px 0 20px;
+      color: var(--retro-ink-dark);
+      text-decoration: none;
+      font-family: 'Righteous', 'Krub', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      background: var(--retro-mustard);
+      border: 2px solid var(--retro-border);
+      border-radius: 6px;
+      box-shadow: 3px 3px 0px var(--retro-border);
+      transition: all 0.18s ease;
+    }
+
+    .back-link:hover {
+      background: var(--retro-burnt-orange);
+      color: #fff;
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0px var(--retro-border);
+    }
+
+    .reader-sheet {
+      background: var(--retro-bg-surface);
+      border: 3px solid var(--retro-border);
+      border-radius: 12px;
+      box-shadow: var(--retro-shadow-deep);
+      padding: 42px 38px;
+      margin-bottom: 60px;
+      position: relative;
+    }
+
+    .reader-content {
+      font-family: 'Krub', serif;
+      font-size: 1.12rem;
+      line-height: 1.85;
+      color: var(--retro-ink-dark);
+    }
+
+    .reader-content h1 {
+      font-family: 'Pridi', serif;
+      font-size: 2.15rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin: 0 0 24px;
+      color: var(--retro-ink-dark);
+      border-bottom: 3px solid var(--retro-border);
+      padding-bottom: 12px;
+    }
+
+    .reader-content blockquote {
+      margin: 26px 0;
+      padding: 16px 20px;
+      border-left: 5px solid var(--retro-burnt-orange);
+      background: #f5eedb;
+      border-radius: 4px;
+      border: 1.5px solid var(--retro-border);
+      border-left: 5px solid var(--retro-burnt-orange);
+      color: var(--retro-ink-dark);
+      font-style: italic;
+      box-shadow: 3px 3px 0px var(--retro-border);
+    }
+
+    .empty-state {
+      color: var(--retro-ink-muted);
+      padding: 30px 20px 60px;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: var(--retro-border);
+      color: #dfd4c5;
+      border-top: 4px solid var(--retro-mustard);
+      font-size: 0.9rem;
+      padding: 30px 0;
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    @media (max-width: 768px) {
+      .site-header .wrap-header {
+        flex-direction: column;
+      }
+
+      .header-actions {
+        width: 100%;
+        flex-direction: row;
+        min-width: auto;
+      }
+
+      .header-actions .btn {
+        flex: 1;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .site-header {
+        padding: 26px 18px 22px;
+      }
+
+      .site-header h1 {
+        font-size: 1.7rem;
+      }
+
+      .reader-sheet {
+        padding: 26px 18px;
+      }
+
+      .categories {
+        gap: 6px 8px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-
-<header class="site-header">
+  <div class="retro-rainbow-bar"> <span></span><span></span><span></span><span></span><span></span> </div>
   <div class="wrap">
-    <div class="header-content">
-      <p class="brand">HIM YOUTH THAILAND</p>
-      <h1>คลังบทเรียนสร้างสาวกรุ่นใหม่</h1>
-      <p class="tagline">รวมบทเรียนสำหรับการสอนและพัฒนาผู้นำรุ่นใหม่ เพิ่มเติมได้เรื่อย ๆ ตามการรับใช้</p>
-    </div>
-    <div class="header-actions">
-      <a href="/login.html" id="login-btn" class="btn btn-primary" style="display: none;">🔐 Login</a>
-      <a href="/editor.html" id="editor-btn" class="btn btn-primary" style="display: none;">✍️ เพิ่ม/แก้ไข</a>
-      <a href="/admin.html" id="admin-btn" class="btn btn-admin" style="display: none;">🔧 Admin</a>
-      <button id="logout-btn" class="btn btn-danger" style="display: none;">🚪 Logout</button>
-    </div>
+    <header class="site-header">
+      <div class="wrap-header">
+        <div class="header-content">
+          <p class="brand">📻 HIM YOUTH THAILAND // EST. 1978</p>
+          <h1>คลังบทเรียนสร้างสาวกรุ่นใหม่</h1>
+          <p class="tagline">รวมบทเรียนสำหรับการสอนและพัฒนาผู้นำรุ่นใหม่ สไตล์อนาล็อกเรโทร เพิ่มเติมได้เรื่อย ๆ
+            ตามการรับใช้</p>
+        </div>
+        <div class="header-actions"> <a href="/login.html" id="login-btn" class="btn btn-primary"
+            style="display: none;">🔐 Login</a> <a href="/editor.html" id="editor-btn" class="btn btn-primary"
+            style="display: none;">✍️ เพิ่ม/แก้ไข</a> <a href="/admin.html" id="admin-btn" class="btn btn-admin"
+            style="display: none;">🔧 Admin</a> <button id="logout-btn" class="btn btn-danger" style="display: none;">🚪
+            Logout</button> </div>
+      </div>
+    </header>
+    <main>
+      <section id="view-list">
+        <div class="toolbar">
+          <div class="search-container"> <span class="search-icon">🔍</span> <input id="search" type="search"
+              placeholder="ค้นหาชื่อบทเรียน, หัวข้อ หรือคำสำคัญ..."> </div>
+          <nav id="categories" class="categories" aria-label="หมวดบทเรียน"></nav>
+        </div>
+        <ul id="lesson-list" class="lesson-list"></ul>
+        <p id="empty-state" class="empty-state" hidden>ยังไม่มีบทเรียนในหมวดนี้ ลองเลือกหมวดอื่น หรือล้างคำค้นหา</p>
+      </section>
+      <section id="view-reader" hidden> <a href="#" id="back-link" class="back-link">&larr;
+          กลับไปที่รายการบทเรียนทั้งหมด</a>
+        <article class="reader-sheet">
+          <div id="reader-content" class="reader-content"></div>
+        </article>
+      </section>
+    </main>
   </div>
-</header>
-
-<main class="wrap">
-
-  <section id="view-list">
-    <div class="toolbar">
-      <input id="search" type="search" placeholder="ค้นหาชื่อบทเรียน...">
-      <nav id="categories" class="categories" aria-label="หมวดบทเรียน"></nav>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>HIM Youth Thailand · บทเรียนนี้จัดทำเพื่อการรับใช้และการเติบโตของสาวกรุ่นใหม่</p>
+      <p style="margin-top: 6px; font-size: 0.8rem; opacity: 0.7; font-family: 'Space Mono', monospace;">RETRO VINYL
+        ARCHIVE EDITION // ANALOG GROOVE THEME</p>
     </div>
-
-    <ul id="lesson-list" class="lesson-list"></ul>
-
-    <p id="empty-state" class="empty-state" hidden>ยังไม่มีบทเรียนในหมวดนี้ ลองเลือกหมวดอื่น หรือล้างคำค้นหา</p>
-  </section>
-
-  <section id="view-reader" hidden>
-    <a href="#" id="back-link" class="back-link">&larr; กลับไปที่รายการบทเรียนทั้งหมด</a>
-    <article id="reader-content" class="reader-content"></article>
-  </section>
-
-</main>
-
-<footer class="site-footer">
-  <div class="wrap">
-    <p>HIM Youth Thailand · บทเรียนนี้จัดทำเพื่อการรับใช้และการเติบโตของสาวกรุ่นใหม่</p>
-  </div>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
-<script>
-  // Show appropriate buttons based on login status
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script>
   function updateAuthButtons() {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
@@ -147,39 +587,45 @@
     const adminBtn = document.getElementById('admin-btn');
     const logoutBtn = document.getElementById('logout-btn');
 
-    if (token && user) {
-      const userData = JSON.parse(user);
-      
-      loginBtn.style.display = 'none';
-      editorBtn.style.display = 'block';
-      logoutBtn.style.display = 'block';
-      
-      if (userData.role === 'admin') {
-        adminBtn.style.display = 'block';
-      } else {
-        adminBtn.style.display = 'none';
-      }
+    if (!loginBtn || !editorBtn || !adminBtn || !logoutBtn) return;
 
-      logoutBtn.onclick = (e) => {
-        e.preventDefault();
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        loginBtn.style.display = 'none';
+        editorBtn.style.display = 'inline-flex';
+        logoutBtn.style.display = 'inline-flex';
+        adminBtn.style.display = (userData && userData.role === 'admin') ? 'inline-flex' : 'none';
+
+        logoutBtn.onclick = (e) => {
+          e.preventDefault();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.reload(); // รีโหลดหน้าเพื่ออัปเดตสถานะ
+        };
+      } catch(e) {
+        // หากข้อมูลใน localStorage เสียหาย
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/index.html';
-      };
+        loginBtn.style.display = 'inline-flex';
+        editorBtn.style.display = 'none';
+        adminBtn.style.display = 'none';
+        logoutBtn.style.display = 'none';
+      }
     } else {
-      loginBtn.style.display = 'block';
+      // เมื่อยังไม่ได้ Login
+      loginBtn.style.display = 'inline-flex';
       editorBtn.style.display = 'none';
       adminBtn.style.display = 'none';
       logoutBtn.style.display = 'none';
     }
   }
 
-  // Initialize on page load
-  updateAuthButtons();
-
-  // Update buttons when storage changes (e.g., from another tab)
+  // เรียกใช้งานเมื่อ DOM โหลดเรียบร้อย
+  document.addEventListener('DOMContentLoaded', updateAuthButtons);
   window.addEventListener('storage', updateAuthButtons);
 </script>
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
+
 </html>
