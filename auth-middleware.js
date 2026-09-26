@@ -1,10 +1,25 @@
-// Authentication & Authorization Middleware
+// Authentication & Authorization Middleware (hardened)
+// - bcryptjs for password hashing
+// - jsonwebtoken for proper JWT
+// - Secrets loaded from environment only
+
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const USERS_FILE = path.join(__dirname, 'users.json');
-const JWT_SECRET = process.env.JWT_SECRET || 'him-youth-lessons-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const BCRYPT_ROUNDS = 12;
+
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  console.error(
+    'FATAL: JWT_SECRET is missing or too short. Set a strong secret (≥32 chars) in .env'
+  );
+  process.exit(1);
+}
 
 // Load users from file
 function loadUsers() {
@@ -14,90 +29,73 @@ function loadUsers() {
       return JSON.parse(data);
     }
   } catch (err) {
-    console.error('Error loading users:', err);
+    console.error('Error loading users:', err.message);
   }
   return [];
 }
 
-// Save users to file
+// Save users to file (atomic write)
 function saveUsers(users) {
   try {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    const tmp = USERS_FILE + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(users, null, 2), { mode: 0o600 });
+    fs.renameSync(tmp, USERS_FILE);
   } catch (err) {
-    console.error('Error saving users:', err);
+    console.error('Error saving users:', err.message);
     throw err;
   }
 }
 
-// Simple JWT implementation (for production, use jsonwebtoken package)
-function generateToken(userId, username, role) {
-  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
-  const payload = Buffer.from(JSON.stringify({
-    userId,
-    username,
-    role,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
-  })).toString('base64');
-  
-  const signature = crypto
-    .createHmac('sha256', JWT_SECRET)
-    .update(`${header}.${payload}`)
-    .digest('base64');
-  
-  return `${header}.${payload}.${signature}`;
+// Hash password with bcrypt
+function hashPassword(password) {
+  return bcrypt.hashSync(password, BCRYPT_ROUNDS);
 }
 
-// Verify JWT token
+// Compare password (bcrypt only — old SHA-256 hashes are rejected)
+function comparePassword(password, hash) {
+  if (!hash || typeof hash !== 'string') return false;
+
+  // bcrypt hashes start with $2a$, $2b$ or $2y$
+  if (hash.startsWith('$2')) {
+    return bcrypt.compareSync(password, hash);
+  }
+
+  // Legacy SHA-256 hashes are no longer accepted. Re-create accounts or reset passwords.
+  return false;
+}
+
+// Generate proper JWT
+function generateToken(userId, username, role) {
+  return jwt.sign(
+    { userId, username, role },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN, algorithm: 'HS256' }
+  );
+}
+
+// Verify JWT
 function verifyToken(token) {
   try {
-    const [header, payload, signature] = token.split('.');
-    
-    const expectedSignature = crypto
-      .createHmac('sha256', JWT_SECRET)
-      .update(`${header}.${payload}`)
-      .digest('base64');
-    
-    if (signature !== expectedSignature) {
-      return null;
-    }
-    
-    const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
-    
-    // Check expiration
-    if (decoded.exp < Math.floor(Date.now() / 1000)) {
-      return null;
-    }
-    
-    return decoded;
+    return jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
   } catch (err) {
     return null;
   }
 }
 
-// Hash password (simple bcrypt-like hashing for demo)
-function hashPassword(password) {
-  // For production, use bcrypt package
-  return crypto.createHash('sha256').update(password + JWT_SECRET).digest('hex');
-}
-
-// Compare password
-function comparePassword(password, hash) {
-  return hashPassword(password) === hash;
-}
-
 // Middleware: Verify token and attach user to request
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader && authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7)
+    : null;
 
   if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+    return res.status(401).json({ error: 'Authentication required' });
   }
 
   const decoded = verifyToken(token);
   if (!decoded) {
-    return res.status(403).json({ error: 'Invalid or expired token' });
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 
   req.user = decoded;
@@ -125,18 +123,11 @@ function checkLessonOwnership(req, res, next) {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  // Admin can access everything
   if (req.user.role === 'admin') {
     req.isOwner = true;
     return next();
   }
 
-  // Get lesson and check if user created it
-  const users = loadUsers();
-  const user = users.find(u => u.id === req.user.userId);
-  
-  // For now, we'll check this in the route handler
-  // This allows for more flexible permission checking
   next();
 }
 
@@ -149,5 +140,5 @@ module.exports = {
   comparePassword,
   authenticateToken,
   requireRole,
-  checkLessonOwnership
+  checkLessonOwnership,
 };

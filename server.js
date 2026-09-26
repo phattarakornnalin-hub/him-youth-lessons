@@ -1,58 +1,167 @@
-// HIM Youth Thailand — Lesson Management Server with Role-Based Access Control
-// Express backend with JWT authentication for Create/Read/Update/Delete lessons
-// Saves directly to lessons/ folder for instant updates on index.html
+// HIM Youth Thailand — Lesson Management Server (hardened)
+// Express backend with proper JWT + bcrypt, rate limiting, security headers,
+// restricted static serving, and safer file handling.
 
+require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
-const crypto = require('crypto');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const multer = require('multer');
 const auth = require('./auth-middleware');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Multer: store uploaded lesson files in memory (PDF or Markdown)
+// ---------- Security middleware ----------
+app.disable('x-powered-by');
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"], // needed for inline scripts in current HTML
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        fontSrc: ["'self'", 'data:'],
+        connectSrc: ["'self'"],
+        frameSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // allow PDF embedding if needed
+  })
+);
+
+// CORS — restrict to configured origins (or same-origin only)
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (same-origin, curl, mobile apps, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.length === 0) {
+        // No origins configured → allow only same-origin style (no cross-origin)
+        return callback(null, false);
+      }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+// Rate limiting
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // 10 attempts per 15 min per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts, please try again later' },
+});
+
+app.use(generalLimiter);
+
+// Body parsing with reasonable limits
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+
+// ---------- Block sensitive files from static serving ----------
+const BLOCKED_PATHS = [
+  /^\/server\.js$/i,
+  /^\/auth-middleware\.js$/i,
+  /^\/users\.json$/i,
+  /^\/package\.json$/i,
+  /^\/package-lock\.json$/i,
+  /^\/\.env/i,
+  /^\/node_modules/i,
+  /^\/\.git/i,
+];
+
+app.use((req, res, next) => {
+  if (BLOCKED_PATHS.some((re) => re.test(req.path))) {
+    return res.status(404).end();
+  }
+  next();
+});
+
+// Static files — only public assets + lessons
+app.use(express.static(path.join(__dirname), {
+  index: false,
+  dotfiles: 'deny',
+  setHeaders: (res, filePath) => {
+    // Extra protection: never serve .js that are server-side, .json secrets, etc.
+    const base = path.basename(filePath).toLowerCase();
+    if (
+      base === 'server.js' ||
+      base === 'auth-middleware.js' ||
+      base === 'users.json' ||
+      base.startsWith('.env')
+    ) {
+      res.status(404).end();
+    }
+  },
+}));
+
+// Explicitly serve lessons (PDFs + markdown) under /lessons
+app.use('/lessons', express.static(path.join(__dirname, 'lessons'), {
+  dotfiles: 'deny',
+  index: false,
+}));
+
+// ---------- Multer (uploads) ----------
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB for PDFs
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
   fileFilter: (req, file, cb) => {
     const allowedMimes = [
       'application/pdf',
       'text/plain',
       'text/markdown',
       'text/x-markdown',
-      'application/octet-stream',
     ];
     const ext = path.extname(file.originalname || '').toLowerCase();
-    if (allowedMimes.includes(file.mimetype) || ['.pdf', '.md', '.txt', '.markdown'].includes(ext)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only PDF (.pdf) or Markdown/Text (.md, .txt) files are allowed'));
+    const allowedExt = ['.pdf', '.md', '.txt', '.markdown'];
+
+    if (allowedMimes.includes(file.mimetype) && allowedExt.includes(ext)) {
+      return cb(null, true);
     }
+    // Reject octet-stream and unknown types
+    cb(new Error('Only PDF (.pdf) or Markdown/Text (.md, .txt) files are allowed'));
   },
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.static('.'));
-
+// ---------- Paths ----------
 const LESSONS_DIR = path.join(__dirname, 'lessons');
 const PDFS_DIR = path.join(LESSONS_DIR, 'pdfs');
 const MANIFEST_FILE = path.join(LESSONS_DIR, 'manifest.json');
-const USERS_FILE = path.join(__dirname, 'users.json');
 
 // Ensure directories exist
-if (!fs.existsSync(LESSONS_DIR)) {
-  fs.mkdirSync(LESSONS_DIR, { recursive: true });
-}
-if (!fs.existsSync(PDFS_DIR)) {
-  fs.mkdirSync(PDFS_DIR, { recursive: true });
-}
+if (!fs.existsSync(LESSONS_DIR)) fs.mkdirSync(LESSONS_DIR, { recursive: true });
+if (!fs.existsSync(PDFS_DIR)) fs.mkdirSync(PDFS_DIR, { recursive: true });
 
-// Load manifest from file
+// ---------- Helpers ----------
 function loadManifest() {
   try {
     if (fs.existsSync(MANIFEST_FILE)) {
@@ -60,140 +169,29 @@ function loadManifest() {
       return JSON.parse(data);
     }
   } catch (err) {
-    console.error('Error loading manifest:', err);
+    console.error('Error loading manifest:', err.message);
   }
   return [];
 }
 
-// Save manifest to file
 function saveManifest(lessons) {
-  try {
-    fs.writeFileSync(MANIFEST_FILE, JSON.stringify(lessons, null, 2));
-    console.log('✅ Manifest saved');
-  } catch (err) {
-    console.error('Error saving manifest:', err);
-    throw err;
-  }
+  const tmp = MANIFEST_FILE + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(lessons, null, 2));
+  fs.renameSync(tmp, MANIFEST_FILE);
+  console.log('✅ Manifest saved');
 }
 
-// Helper function to generate next sequential ID
 function generateNextID(lessons) {
   if (lessons.length === 0) return '0001';
-  
   const maxID = Math.max(
     ...lessons.map((l) => {
-      const match = l.id.match(/^(\d+)/);
+      const match = String(l.id || '').match(/^(\d+)/);
       return match ? parseInt(match[1], 10) : 0;
     })
   );
-  
   return String(maxID + 1).padStart(4, '0');
 }
 
-// ============ PUBLIC ROUTES ============
-
-// GET all lessons (public - for viewers)
-app.get('/api/lessons', (req, res) => {
-  try {
-    const lessons = loadManifest();
-    // Return only published lessons for public view
-    res.json(lessons);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET single lesson with content (public)
-app.get('/api/lessons/:id', (req, res) => {
-  try {
-    const lessons = loadManifest();
-    const lesson = lessons.find((l) => l.id === req.params.id);
-    
-    if (!lesson) {
-      return res.status(404).json({ error: 'Lesson not found' });
-    }
-
-    // Read text content only for markdown lessons (PDFs are served as static files)
-    const isPdf =
-      lesson.type === 'pdf' ||
-      (lesson.file && lesson.file.toLowerCase().endsWith('.pdf'));
-    if (!isPdf) {
-      const filePath = path.join(LESSONS_DIR, lesson.file);
-      if (fs.existsSync(filePath)) {
-        lesson.content = fs.readFileSync(filePath, 'utf-8');
-      }
-    } else {
-      lesson.type = 'pdf';
-      lesson.contentUrl = '/lessons/' + lesson.file;
-    }
-
-    res.json(lesson);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ============ AUTHENTICATION ROUTES ============
-
-// POST login
-app.post('/api/auth/login', (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password required' });
-    }
-
-    const users = auth.loadUsers();
-    const user = users.find(u => u.username === username);
-
-    if (!user || !auth.comparePassword(password, user.password)) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
-
-    const token = auth.generateToken(user.id, user.username, user.role);
-    
-    res.json({
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        email: user.email
-      }
-    });
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST logout (client-side just deletes token)
-app.post('/api/auth/logout', auth.authenticateToken, (req, res) => {
-  res.json({ success: true, message: 'Logged out successfully' });
-});
-
-// GET current user info
-app.get('/api/auth/me', auth.authenticateToken, (req, res) => {
-  const users = auth.loadUsers();
-  const user = users.find(u => u.id === req.user.userId);
-  
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-
-  res.json({
-    id: user.id,
-    username: user.username,
-    role: user.role,
-    email: user.email
-  });
-});
-
-// ============ LESSON MANAGEMENT ROUTES (Protected) ============
-
-// Helper: extract title/category/date/excerpt/content from either JSON body or multipart
 function isPdfUpload(file) {
   if (!file) return false;
   const ext = path.extname(file.originalname || '').toLowerCase();
@@ -201,8 +199,7 @@ function isPdfUpload(file) {
 }
 
 function extractLessonFields(req) {
-  // Prefer uploaded file; detect PDF vs text
-  let content = null; // text content (md/txt only)
+  let content = null;
   let isPdf = false;
   let fileBuffer = null;
 
@@ -217,10 +214,10 @@ function extractLessonFields(req) {
   }
 
   return {
-    title: (req.body.title || '').trim(),
-    category: (req.body.category || '').trim(),
-    date: (req.body.date || '').trim(),
-    excerpt: (req.body.excerpt || '').trim(),
+    title: (req.body.title || '').trim().slice(0, 200),
+    category: (req.body.category || '').trim().slice(0, 100),
+    date: (req.body.date || '').trim().slice(0, 30),
+    excerpt: (req.body.excerpt || '').trim().slice(0, 500),
     content,
     isPdf,
     fileBuffer,
@@ -228,18 +225,152 @@ function extractLessonFields(req) {
   };
 }
 
-// POST create new lesson (Writers and Admins only)
-// Accepts either JSON { title, category, date, excerpt, content }
-// or multipart/form-data with the same fields + optional file field "contentFile"
+// Safe path check — prevent path traversal
+function safeLessonPath(relativeFile) {
+  const resolved = path.resolve(LESSONS_DIR, relativeFile);
+  if (!resolved.startsWith(LESSONS_DIR + path.sep) && resolved !== LESSONS_DIR) {
+    throw new Error('Invalid file path');
+  }
+  return resolved;
+}
+
+// ---------- PUBLIC ROUTES ----------
+app.get('/api/lessons', (req, res) => {
+  try {
+    const lessons = loadManifest();
+    // Return public fields only
+    const publicLessons = lessons.map((l) => ({
+      id: l.id,
+      title: l.title,
+      category: l.category,
+      date: l.date,
+      excerpt: l.excerpt,
+      type: l.type || (l.file && l.file.endsWith('.pdf') ? 'pdf' : 'markdown'),
+      file: l.file,
+    }));
+    res.json(publicLessons);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load lessons' });
+  }
+});
+
+app.get('/api/lessons/:id', (req, res) => {
+  try {
+    const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!id) return res.status(400).json({ error: 'Invalid id' });
+
+    const lessons = loadManifest();
+    const lesson = lessons.find((l) => l.id === id);
+
+    if (!lesson) {
+      return res.status(404).json({ error: 'Lesson not found' });
+    }
+
+    const isPdf =
+      lesson.type === 'pdf' ||
+      (lesson.file && lesson.file.toLowerCase().endsWith('.pdf'));
+
+    const result = {
+      id: lesson.id,
+      title: lesson.title,
+      category: lesson.category,
+      date: lesson.date,
+      excerpt: lesson.excerpt,
+      type: isPdf ? 'pdf' : 'markdown',
+      file: lesson.file,
+    };
+
+    if (!isPdf) {
+      const filePath = safeLessonPath(lesson.file);
+      if (fs.existsSync(filePath)) {
+        result.content = fs.readFileSync(filePath, 'utf-8');
+      }
+    } else {
+      result.contentUrl = '/lessons/' + lesson.file;
+    }
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load lesson' });
+  }
+});
+
+// ---------- AUTH ROUTES ----------
+app.post('/api/auth/login', loginLimiter, (req, res) => {
+  try {
+    const { username, password } = req.body || {};
+
+    if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ error: 'Username and password required' });
+    }
+
+    if (username.length > 64 || password.length > 128) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    const users = auth.loadUsers();
+    const user = users.find((u) => u.username === username.trim());
+
+    if (!user || !auth.comparePassword(password, user.password)) {
+      // Generic message — do not reveal whether username exists
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Optional: upgrade legacy hash on successful login is no longer needed
+    // (legacy hashes are rejected)
+
+    const token = auth.generateToken(user.id, user.username, user.role);
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.error('Login error:', err.message);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+app.post('/api/auth/logout', auth.authenticateToken, (req, res) => {
+  res.json({ success: true, message: 'Logged out successfully' });
+});
+
+app.get('/api/auth/me', auth.authenticateToken, (req, res) => {
+  const users = auth.loadUsers();
+  const user = users.find((u) => u.id === req.user.userId);
+
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  res.json({
+    id: user.id,
+    username: user.username,
+    role: user.role,
+    email: user.email,
+  });
+});
+
+// ---------- LESSON MANAGEMENT (protected) ----------
 app.post(
   '/api/lessons',
   auth.authenticateToken,
   auth.requireRole('writer', 'admin'),
   (req, res, next) => {
-    // Only run multer when Content-Type is multipart
     const ct = req.headers['content-type'] || '';
     if (ct.includes('multipart/form-data')) {
-      return upload.single('contentFile')(req, res, next);
+      return upload.single('contentFile')(req, res, (err) => {
+        if (err) {
+          return res.status(400).json({ error: err.message || 'Upload failed' });
+        }
+        next();
+      });
     }
     next();
   },
@@ -264,73 +395,80 @@ app.post(
       if (isPdf) {
         type = 'pdf';
         file = `pdfs/${id}.pdf`;
-        const filePath = path.join(LESSONS_DIR, file);
+        const filePath = safeLessonPath(file);
         fs.writeFileSync(filePath, fileBuffer);
         console.log(`📄 Saved PDF: ${file} (from ${originalName})`);
       } else {
         type = 'markdown';
         file = `${id}.md`;
-        const filePath = path.join(LESSONS_DIR, file);
+        const filePath = safeLessonPath(file);
         fs.writeFileSync(filePath, content, 'utf-8');
         console.log(`📝 Saved: ${file}${originalName ? ' (from ' + originalName + ')' : ''}`);
       }
 
-      const lesson = {
+      const newLesson = {
         id,
         title,
         category,
         date,
         excerpt,
-        file,
         type,
-        createdBy: req.user.username,
+        file,
         userId: req.user.userId,
+        createdBy: req.user.username,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      lessons.push(lesson);
 
+      lessons.push(newLesson);
       saveManifest(lessons);
 
-      res.status(201).json(lesson);
+      res.status(201).json(newLesson);
     } catch (err) {
-      console.error('Error creating lesson:', err);
-      res.status(500).json({ error: err.message });
+      console.error('Error creating lesson:', err.message);
+      res.status(500).json({ error: 'Failed to create lesson' });
     }
   }
 );
 
-// PUT update lesson (Only creator or Admin)
-// Accepts JSON or multipart (with optional contentFile)
 app.put(
   '/api/lessons/:id',
   auth.authenticateToken,
+  auth.requireRole('writer', 'admin'),
   (req, res, next) => {
     const ct = req.headers['content-type'] || '';
     if (ct.includes('multipart/form-data')) {
-      return upload.single('contentFile')(req, res, next);
+      return upload.single('contentFile')(req, res, (err) => {
+        if (err) {
+          return res.status(400).json({ error: err.message || 'Upload failed' });
+        }
+        next();
+      });
     }
     next();
   },
   (req, res) => {
     try {
-      const { title, category, date, excerpt, content, isPdf, fileBuffer, originalName } =
-        extractLessonFields(req);
-      const lessons = loadManifest();
+      const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      if (!id) return res.status(400).json({ error: 'Invalid id' });
 
-      const lessonIndex = lessons.findIndex((l) => l.id === req.params.id);
+      const lessons = loadManifest();
+      const lessonIndex = lessons.findIndex((l) => l.id === id);
+
       if (lessonIndex === -1) {
         return res.status(404).json({ error: 'Lesson not found' });
       }
 
       const lesson = lessons[lessonIndex];
 
-      // Check permissions: Only creator or admin can edit
+      // Ownership check
       if (req.user.role !== 'admin' && lesson.userId !== req.user.userId) {
         return res.status(403).json({ error: 'You can only edit your own lessons' });
       }
 
-      // Update metadata fields
+      const { title, category, date, excerpt, content, isPdf, fileBuffer, originalName } =
+        extractLessonFields(req);
+
       if (title) lesson.title = title;
       if (category) lesson.category = category;
       if (date) lesson.date = date;
@@ -338,14 +476,12 @@ app.put(
       lesson.updatedAt = new Date().toISOString();
       lesson.updatedBy = req.user.username;
 
-      // Replace content file if a new one was uploaded
       if (fileBuffer) {
-        // Remove old file if path changes (e.g. md -> pdf or vice versa)
-        const oldPath = path.join(LESSONS_DIR, lesson.file);
+        const oldPath = safeLessonPath(lesson.file);
         if (isPdf) {
           lesson.type = 'pdf';
           lesson.file = `pdfs/${lesson.id}.pdf`;
-          const newPath = path.join(LESSONS_DIR, lesson.file);
+          const newPath = safeLessonPath(lesson.file);
           fs.writeFileSync(newPath, fileBuffer);
           if (oldPath !== newPath && fs.existsSync(oldPath)) {
             try { fs.unlinkSync(oldPath); } catch (_) {}
@@ -354,7 +490,7 @@ app.put(
         } else {
           lesson.type = 'markdown';
           lesson.file = `${lesson.id}.md`;
-          const newPath = path.join(LESSONS_DIR, lesson.file);
+          const newPath = safeLessonPath(lesson.file);
           fs.writeFileSync(newPath, content, 'utf-8');
           if (oldPath !== newPath && fs.existsSync(oldPath)) {
             try { fs.unlinkSync(oldPath); } catch (_) {}
@@ -362,8 +498,7 @@ app.put(
           console.log(`✏️ Updated: ${lesson.file} (from ${originalName})`);
         }
       } else if (content !== null && content !== undefined) {
-        // JSON text update for markdown lessons
-        const filePath = path.join(LESSONS_DIR, lesson.file);
+        const filePath = safeLessonPath(lesson.file);
         fs.writeFileSync(filePath, content, 'utf-8');
         console.log(`✏️ Updated: ${lesson.file}`);
       }
@@ -373,98 +508,101 @@ app.put(
 
       res.json(lesson);
     } catch (err) {
-      console.error('Error updating lesson:', err);
-      res.status(500).json({ error: err.message });
+      console.error('Error updating lesson:', err.message);
+      res.status(500).json({ error: 'Failed to update lesson' });
     }
   }
 );
 
-// DELETE lesson (Only creator or Admin)
 app.delete('/api/lessons/:id', auth.authenticateToken, (req, res) => {
   try {
+    const id = String(req.params.id || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    if (!id) return res.status(400).json({ error: 'Invalid id' });
+
     const lessons = loadManifest();
-    const lesson = lessons.find((l) => l.id === req.params.id);
+    const lesson = lessons.find((l) => l.id === id);
 
     if (!lesson) {
       return res.status(404).json({ error: 'Lesson not found' });
     }
 
-    // Check permissions
     if (req.user.role !== 'admin' && lesson.userId !== req.user.userId) {
       return res.status(403).json({ error: 'You can only delete your own lessons' });
     }
 
-    // Delete .md file
-    const filePath = path.join(LESSONS_DIR, lesson.file);
+    const filePath = safeLessonPath(lesson.file);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
       console.log(`🗑️ Deleted: ${lesson.file}`);
     }
 
-    // Remove from manifest
-    const filteredLessons = lessons.filter((l) => l.id !== req.params.id);
+    const filteredLessons = lessons.filter((l) => l.id !== id);
     saveManifest(filteredLessons);
 
     res.json({ message: 'Lesson deleted' });
   } catch (err) {
-    console.error('Error deleting lesson:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Error deleting lesson:', err.message);
+    res.status(500).json({ error: 'Failed to delete lesson' });
   }
 });
 
-// ============ ADMIN ROUTES ============
-
-// GET all lessons with creator info (Admin only)
+// ---------- ADMIN ROUTES ----------
 app.get('/api/admin/lessons', auth.authenticateToken, auth.requireRole('admin'), (req, res) => {
   try {
     const lessons = loadManifest();
     res.json(lessons);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load lessons' });
   }
 });
 
-// GET all users (Admin only)
 app.get('/api/admin/users', auth.authenticateToken, auth.requireRole('admin'), (req, res) => {
   try {
     const users = auth.loadUsers();
-    // Don't send passwords
-    const safeUsers = users.map(u => ({
+    const safeUsers = users.map((u) => ({
       id: u.id,
       username: u.username,
       role: u.role,
       email: u.email,
-      createdAt: u.createdAt
+      createdAt: u.createdAt,
     }));
     res.json(safeUsers);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load users' });
   }
 });
 
-// POST create writer account (Admin only)
 app.post('/api/admin/users', auth.authenticateToken, auth.requireRole('admin'), (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password, email } = req.body || {};
 
     if (!username || !password || !email) {
       return res.status(400).json({ error: 'Username, password, and email required' });
     }
 
+    if (typeof username !== 'string' || username.length < 3 || username.length > 32) {
+      return res.status(400).json({ error: 'Username must be 3–32 characters' });
+    }
+    if (typeof password !== 'string' || password.length < 8 || password.length > 128) {
+      return res.status(400).json({ error: 'Password must be 8–128 characters' });
+    }
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
+
     const users = auth.loadUsers();
 
-    // Check if username already exists
-    if (users.some(u => u.username === username)) {
+    if (users.some((u) => u.username === username.trim())) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
     const newUser = {
       id: `writer_${Date.now()}`,
-      username,
+      username: username.trim(),
       password: auth.hashPassword(password),
       role: 'writer',
-      email,
-      createdAt: new Date().toISOString()
+      email: email.trim().toLowerCase(),
+      createdAt: new Date().toISOString(),
     };
 
     users.push(newUser);
@@ -475,27 +613,36 @@ app.post('/api/admin/users', auth.authenticateToken, auth.requireRole('admin'), 
       username: newUser.username,
       role: newUser.role,
       email: newUser.email,
-      createdAt: newUser.createdAt
+      createdAt: newUser.createdAt,
     });
   } catch (err) {
-    console.error('Error creating user:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Error creating user:', err.message);
+    res.status(500).json({ error: 'Failed to create user' });
   }
 });
 
-// PUT update user (Admin only)
 app.put('/api/admin/users/:userId', auth.authenticateToken, auth.requireRole('admin'), (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
     const users = auth.loadUsers();
-    const userIndex = users.findIndex(u => u.id === req.params.userId);
+    const userIndex = users.findIndex((u) => u.id === req.params.userId);
 
     if (userIndex === -1) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (email) users[userIndex].email = email;
-    if (password) users[userIndex].password = auth.hashPassword(password);
+    if (email) {
+      if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'Valid email required' });
+      }
+      users[userIndex].email = email.trim().toLowerCase();
+    }
+    if (password) {
+      if (typeof password !== 'string' || password.length < 8 || password.length > 128) {
+        return res.status(400).json({ error: 'Password must be 8–128 characters' });
+      }
+      users[userIndex].password = auth.hashPassword(password);
+    }
 
     auth.saveUsers(users);
 
@@ -503,40 +650,50 @@ app.put('/api/admin/users/:userId', auth.authenticateToken, auth.requireRole('ad
       id: users[userIndex].id,
       username: users[userIndex].username,
       role: users[userIndex].role,
-      email: users[userIndex].email
+      email: users[userIndex].email,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to update user' });
   }
 });
 
-// DELETE user (Admin only)
 app.delete('/api/admin/users/:userId', auth.authenticateToken, auth.requireRole('admin'), (req, res) => {
   try {
-    // Prevent deleting the last admin
     const users = auth.loadUsers();
-    const user = users.find(u => u.id === req.params.userId);
+    const user = users.find((u) => u.id === req.params.userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if (user.role === 'admin' && users.filter(u => u.role === 'admin').length === 1) {
+    if (user.role === 'admin' && users.filter((u) => u.role === 'admin').length === 1) {
       return res.status(400).json({ error: 'Cannot delete the last admin' });
     }
 
-    const filteredUsers = users.filter(u => u.id !== req.params.userId);
+    const filteredUsers = users.filter((u) => u.id !== req.params.userId);
     auth.saveUsers(filteredUsers);
 
     res.json({ message: 'User deleted' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to delete user' });
   }
+});
+
+// ---------- Fallback & error handling ----------
+app.use((err, req, res, next) => {
+  if (err && err.message && err.message.includes('CORS')) {
+    return res.status(403).json({ error: 'Not allowed by CORS' });
+  }
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ error: err.message });
+  }
+  console.error('Unhandled error:', err.message || err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`\n🚀 HIM Youth Lessons Server running on http://localhost:${PORT}`);
+  console.log(`\n🚀 HIM Youth Lessons Server (hardened) running on http://localhost:${PORT}`);
   console.log(`🔐 Login: http://localhost:${PORT}/login.html`);
   console.log(`👨‍💼 Admin Panel: http://localhost:${PORT}/admin.html`);
   console.log(`📚 Public Lessons: http://localhost:${PORT}/index.html`);
